@@ -1,7 +1,7 @@
 // ReSharper disable UnassignedField.Global
 // ReSharper disable FieldCanBeMadeReadOnly.Global
 // ReSharper disable MemberCanBePrivate.Global
-namespace LibMpv.Api;
+namespace HanumanInstitute.LibMpv.Api;
 
 /// <summary>(see mpv_node)</summary>
 public unsafe struct MpvByteArray

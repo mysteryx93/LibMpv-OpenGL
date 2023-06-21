@@ -1,4 +1,4 @@
-﻿namespace LibMpv;
+﻿namespace HanumanInstitute.LibMpv;
 
 public interface IEventLoop
 {

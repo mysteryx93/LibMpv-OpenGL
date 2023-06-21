@@ -1,15 +1,20 @@
 ﻿using Avalonia;
+using Avalonia.Data;
 using Avalonia.OpenGL;
 using Avalonia.OpenGL.Controls;
 using Avalonia.Threading;
 
-namespace LibMpv.Avalonia;
+namespace HanumanInstitute.LibMpv.Avalonia;
 
-public class OpenGlVideoView : OpenGlControlBase, IVideoView
+public class OpenGlView : OpenGlControlBase, IVideoView
 {
     delegate IntPtr GetProcAddress(string proc);
 
     private GetProcAddress? _getProcAddress;
+
+    // MpvContext property
+    public static readonly DirectProperty<OpenGlView, MpvContext?> MpvContextProperty = AvaloniaProperty.RegisterDirect<OpenGlView, MpvContext?>(
+        nameof(MpvContext), o => o.MpvContext, defaultBindingMode: BindingMode.OneWayToSource);
     public MpvContext? MpvContext { get; } = new();
 
     protected override void OnOpenGlRender(GlInterface gl, int fbo)

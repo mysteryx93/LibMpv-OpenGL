@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-using LibMpv;
+using HanumanInstitute.LibMpv;
 
 namespace Sample.LibMpv.Avalonia.Android.ViewModels;
 

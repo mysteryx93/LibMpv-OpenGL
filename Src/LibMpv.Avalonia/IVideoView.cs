@@ -1,4 +1,4 @@
-namespace LibMpv.Avalonia;
+namespace HanumanInstitute.LibMpv.Avalonia;
 
 public interface IVideoView : IDisposable
 {

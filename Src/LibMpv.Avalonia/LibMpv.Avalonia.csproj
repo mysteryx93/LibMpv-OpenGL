@@ -1,19 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
-      <LangVersion>default</LangVersion>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net6.0-android</TargetFrameworks>
+    <LangVersion>default</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>HanumanInstitute.LibMpv.Avalonia</AssemblyName>
+    <RootNamespace>HanumanInstitute.LibMpv.Avalonia</RootNamespace>
+  </PropertyGroup>
 
-    <ItemGroup>
-      <PackageReference Include="Avalonia" Version="11.0.0-rc1.1" />
-      <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.0-rc1.1" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.0.0-rc1.1" />
+    <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.0-rc1.1" />
+  </ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\LibMpv\LibMpv.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LibMpv\LibMpv.csproj" />
+  </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-android'">
+    <PackageReference Include="Avalonia.Android" Version="11.0.0-rc1.1" />
+  </ItemGroup>
 </Project>

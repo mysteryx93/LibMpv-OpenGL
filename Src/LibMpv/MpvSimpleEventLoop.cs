@@ -1,6 +1,6 @@
-﻿using LibMpv.Api;
+﻿using HanumanInstitute.LibMpv.Api;
 
-namespace LibMpv;
+namespace HanumanInstitute.LibMpv;
 
 public unsafe class MpvSimpleEventLoop : IEventLoop, IDisposable
 {

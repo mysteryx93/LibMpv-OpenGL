@@ -2,6 +2,7 @@
 using System.Reactive.Linq;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Data;
 using Avalonia.Layout;
 using Avalonia.LogicalTree;
 using Avalonia.Media;
@@ -9,12 +10,13 @@ using Avalonia.Metadata;
 using Avalonia.Platform;
 using Avalonia.VisualTree;
 
-namespace LibMpv.Avalonia;
+namespace HanumanInstitute.LibMpv.Avalonia;
 
-public class NativeVideoView : NativeControlHost, IVideoView
+#if !ANDROID
+public class NativeView : NativeControlHost, IVideoView
 {
     public static readonly StyledProperty<object> ContentProperty =
-        ContentControl.ContentProperty.AddOwner<NativeVideoView>();
+        ContentControl.ContentProperty.AddOwner<NativeView>();
 
     private IPlatformHandle? _platformHandle;
 
@@ -23,13 +25,15 @@ public class NativeVideoView : NativeControlHost, IVideoView
     private IDisposable _disposables;
     private IDisposable _isEffectivellyVisibleSub;
 
-
-    public MpvContext MpvContext { get; } = new();
-
-    static NativeVideoView()
+    // MpvContext property
+    public static readonly DirectProperty<NativeView, MpvContext?> MpvContextProperty = AvaloniaProperty.RegisterDirect<NativeView, MpvContext?>(
+        nameof(MpvContext), o => o.MpvContext, defaultBindingMode: BindingMode.OneWayToSource);
+    public MpvContext? MpvContext { get; } = new();
+    
+    static NativeView()
     {
-        ContentProperty.Changed.AddClassHandler<NativeVideoView>((s, e) => s.InitializeNativeOverlay());
-        IsVisibleProperty.Changed.AddClassHandler<NativeVideoView>((s, e) => s.ShowNativeOverlay(s.IsVisible));
+        ContentProperty.Changed.AddClassHandler<NativeView>((s, e) => s.InitializeNativeOverlay());
+        IsVisibleProperty.Changed.AddClassHandler<NativeView>((s, e) => s.ShowNativeOverlay(s.IsVisible));
     }
 
 
@@ -43,7 +47,7 @@ public class NativeVideoView : NativeControlHost, IVideoView
     protected override IPlatformHandle CreateNativeControlCore(IPlatformHandle parent)
     {
         _platformHandle = base.CreateNativeControlCore(parent);
-        MpvContext.StartNativeRendering(_platformHandle.Handle);
+        MpvContext.StartNativeRendering(_platformHandle.Handle.ToInt64());
         return _platformHandle;
     }
 
@@ -211,3 +215,4 @@ public class NativeVideoView : NativeControlHost, IVideoView
         GC.SuppressFinalize(this);
     }
 }
+#endif

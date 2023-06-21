@@ -1,6 +1,6 @@
 // ReSharper disable InvalidXmlDocComment
 
-namespace LibMpv.Api;
+namespace HanumanInstitute.LibMpv.Api;
 
 public static unsafe partial class Mpv
 {

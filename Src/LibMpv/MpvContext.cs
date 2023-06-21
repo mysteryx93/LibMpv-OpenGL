@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
-using LibMpv.Api;
+using HanumanInstitute.LibMpv.Api;
 
-namespace LibMpv;
+namespace HanumanInstitute.LibMpv;
 
 public unsafe partial class MpvContext : IDisposable
 {
@@ -18,13 +18,17 @@ public unsafe partial class MpvContext : IDisposable
         }
         return _ctx;
     }
-
+    
     public MpvContext() : this(MpvEventLoop.Default)
     {
     }
 
     public MpvContext(MpvEventLoop mpvEventLoop)
     {
+#if ANDROID
+        InitAndroid.InitJvm();
+#endif
+
         var code = Mpv.Initialize(Ctx);
         CheckCode(code);
 

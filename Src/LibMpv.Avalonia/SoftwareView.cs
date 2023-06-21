@@ -1,18 +1,23 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Data;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Threading;
 
-namespace LibMpv.Avalonia;
+namespace HanumanInstitute.LibMpv.Avalonia;
 
-public class SoftwareVideoView : Control, IVideoView
+public class SoftwareView : Control, IVideoView
 {
     private WriteableBitmap? _renderTarget;
-    public MpvContext MpvContext { get; } = new();
 
-    public SoftwareVideoView()
+    // MpvContext property
+    public static readonly DirectProperty<SoftwareView, MpvContext?> MpvContextProperty = AvaloniaProperty.RegisterDirect<SoftwareView, MpvContext?>(
+        nameof(MpvContext), o => o.MpvContext, defaultBindingMode: BindingMode.OneWayToSource);
+    public MpvContext? MpvContext { get; } = new();
+
+    public SoftwareView()
     {
         ClipToBounds = true;
     }
@@ -66,7 +71,7 @@ public class SoftwareVideoView : Control, IVideoView
         GC.SuppressFinalize(this);
     }
     
-    ~SoftwareVideoView()
+    ~SoftwareView()
     {
         Dispose(false);
     }

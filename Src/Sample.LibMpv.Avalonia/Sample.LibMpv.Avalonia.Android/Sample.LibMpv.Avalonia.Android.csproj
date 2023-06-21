@@ -25,4 +25,9 @@
   <ItemGroup>
     <ProjectReference Include="..\Sample.LibMpv.Avalonia\Sample.LibMpv.Avalonia.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <AndroidNativeLibrary Include="..\..\..\MpvDll\android-x64\*" />
+  </ItemGroup>
+
 </Project>

@@ -1,11 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	  <TargetFramework>netstandard2.0</TargetFramework>
+	  <TargetFrameworks>netstandard2.0;net6.0-android</TargetFrameworks>
 	  <LangVersion>default</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <AssemblyName>HanumanInstitute.LibMpv</AssemblyName>
+    <RootNamespace>HanumanInstitute.LibMpv</RootNamespace>
   </PropertyGroup>
 
 </Project>

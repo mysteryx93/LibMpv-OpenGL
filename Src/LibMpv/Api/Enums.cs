@@ -1,4 +1,4 @@
-namespace LibMpv.Api;
+namespace HanumanInstitute.LibMpv.Api;
 
 /// <summary>Since API version 1.9.</summary>
 public enum MpvEndFileReason

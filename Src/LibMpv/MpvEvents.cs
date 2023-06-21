@@ -1,8 +1,8 @@
 ﻿// ReSharper disable UnusedAutoPropertyAccessor.Global
 
-using LibMpv.Api;
+using HanumanInstitute.LibMpv.Api;
 
-namespace LibMpv;
+namespace HanumanInstitute.LibMpv;
 
 public class MpvPropertyEventArgs : EventArgs
 {

@@ -1,4 +1,4 @@
-﻿namespace LibMpv.Api;
+﻿namespace HanumanInstitute.LibMpv.Api;
 
 public static class FunctionResolverFactory
 {

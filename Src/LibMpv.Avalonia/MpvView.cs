@@ -2,12 +2,12 @@
 using Avalonia.Controls;
 using Avalonia.Data;
 
-namespace LibMpv.Avalonia;
+namespace HanumanInstitute.LibMpv.Avalonia;
 
-public class MpvVideoView : Control
+public class MpvView : Control
 {
     // RendererInstance property
-    public static readonly DirectProperty<MpvVideoView, IVideoView?> RendererInstanceProperty = AvaloniaProperty.RegisterDirect<MpvVideoView, IVideoView?>(
+    public static readonly DirectProperty<MpvView, IVideoView?> RendererInstanceProperty = AvaloniaProperty.RegisterDirect<MpvView, IVideoView?>(
         nameof(MpvContext), o => o.RendererInstance, defaultBindingMode: BindingMode.OneWayToSource);
     public IVideoView? RendererInstance
     {
@@ -17,16 +17,16 @@ public class MpvVideoView : Control
     private IVideoView? _renderInstance;
 
     // MpvContext property
-    public static readonly DirectProperty<MpvVideoView, MpvContext?> MpvContextProperty = AvaloniaProperty.RegisterDirect<MpvVideoView, MpvContext?>(
+    public static readonly DirectProperty<MpvView, MpvContext?> MpvContextProperty = AvaloniaProperty.RegisterDirect<MpvView, MpvContext?>(
         nameof(MpvContext), o => o.MpvContext, defaultBindingMode: BindingMode.OneWayToSource);
     public MpvContext? MpvContext => RendererInstance?.MpvContext;
     
     /// <summary>
     /// Defines the Renderer property.
     /// </summary>
-    public static readonly DirectProperty<MpvVideoView, VideoRenderer> RendererProperty = AvaloniaProperty.RegisterDirect<MpvVideoView, VideoRenderer>(
+    public static readonly DirectProperty<MpvView, VideoRenderer> RendererProperty = AvaloniaProperty.RegisterDirect<MpvView, VideoRenderer>(
         nameof(Renderer), o => o.Renderer, (o, v) => o.Renderer = v);
-    private VideoRenderer _renderer = Avalonia.VideoRenderer.Software;
+    private VideoRenderer _renderer = Avalonia.VideoRenderer.Auto;
     /// <summary>
     /// Gets or sets the video renderer.
     /// </summary>
@@ -54,10 +54,10 @@ public class MpvVideoView : Control
         var oldContext = MpvContext;
         RendererInstance = Renderer switch
         {
-            VideoRenderer.Software => new SoftwareVideoView(),
-            VideoRenderer.OpenGl => new OpenGlVideoView(),
-            VideoRenderer.Native => new NativeVideoView(),
-            _ => null
+            VideoRenderer.Software => new SoftwareView(),
+            VideoRenderer.OpenGl => new OpenGlView(),
+            VideoRenderer.Native => new NativeView(),
+            _ => SelectAuto()
         };
         
         if (RendererInstance != null)
@@ -65,6 +65,14 @@ public class MpvVideoView : Control
             this.VisualChildren.Add((Visual)RendererInstance);
             RaisePropertyChanged(MpvContextProperty, oldContext, MpvContext);
         }
+    }
+
+    private IVideoView SelectAuto()
+    {
+#if ANDROID
+        return new NativeView();
+#endif
+        return new OpenGlView();
     }
 
     private void StopRenderer()

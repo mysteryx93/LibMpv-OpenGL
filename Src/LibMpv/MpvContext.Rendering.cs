@@ -1,6 +1,6 @@
-﻿using LibMpv.Api;
+﻿using HanumanInstitute.LibMpv.Api;
 
-namespace LibMpv;
+namespace HanumanInstitute.LibMpv;
 
 public delegate nint GetProcAddress(string name);
 public delegate void UpdateCallback();

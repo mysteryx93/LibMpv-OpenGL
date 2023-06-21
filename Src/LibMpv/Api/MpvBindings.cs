@@ -1,6 +1,6 @@
 using System.Security;
 
-namespace LibMpv.Api;
+namespace HanumanInstitute.LibMpv.Api;
 
 internal static unsafe class MpvBindings
 {

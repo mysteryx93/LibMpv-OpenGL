@@ -1,4 +1,5 @@
-﻿using LibMpv.Avalonia;
+﻿using HanumanInstitute.LibMpv;
+using HanumanInstitute.LibMpv.Avalonia;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
@@ -6,7 +7,7 @@ namespace Sample.LibMpv.Avalonia.ViewModels;
 
 public class MainViewModel : ReactiveObject
 {
-    public MpvContext? Mpv { get; set; }
+    public MpvContext Mpv { get; set; } = default!;
     
     [Reactive]
     public VideoRenderer Renderer { get; set; }
@@ -18,15 +19,11 @@ public class MainViewModel : ReactiveObject
         set { this.RaiseAndSetIfChanged(ref _mediaUrl, value); }
     }
 
-    public MainViewModel()
-    {
-    }
-
     public void Play()
     {
-        Stop();
-        Mpv?.SetPropertyFlag("pause", false);
-        Mpv?.Command("loadfile", MediaUrl, "replace");
+        // Stop();
+        Mpv.Command("loadfile", MediaUrl, "replace");
+        // Mpv.SetPropertyFlag("pause", false);
     }
 
     public void Pause() => Pause(null);
@@ -37,10 +34,7 @@ public class MainViewModel : ReactiveObject
         Mpv.SetPropertyFlag("pause", value.Value);
     }
 
-    public void Stop()
-    {
-        Mpv?.Command("stop");
-    }
+    public void Stop() => Mpv.Command("stop");
 
     public void Software() => Renderer = VideoRenderer.Software;
     public void OpenGl() => Renderer = VideoRenderer.OpenGl;

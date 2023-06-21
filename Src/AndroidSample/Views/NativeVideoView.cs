@@ -8,7 +8,7 @@ using Avalonia.Android;
 using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Platform;
-using LibMpv;
+using HanumanInstitute.LibMpv;
 
 namespace Sample.LibMpv.Avalonia.Android.Views;
 

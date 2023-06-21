@@ -29,10 +29,10 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup Condition="'$(RuntimeIdentifier)'=='android-x64'">
-    <Content Include="android-x64\**">
+  <ItemGroup Condition="'$(RuntimeIdentifier)'=='android-x64' or '$(RuntimeIdentifier)'==''">
+    <AndroidNativeLibrary Include="android-x64\**">
       <Link>%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    </AndroidNativeLibrary>
   </ItemGroup>
 </Project>

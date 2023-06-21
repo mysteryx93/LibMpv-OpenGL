@@ -1,6 +1,6 @@
 ﻿// ReSharper disable IdentifierTypo
 // ReSharper disable InconsistentNaming
-namespace LibMpv.Api;
+namespace HanumanInstitute.LibMpv.Api;
 
 public class LinuxFunctionResolver : FunctionResolverBase
 {
