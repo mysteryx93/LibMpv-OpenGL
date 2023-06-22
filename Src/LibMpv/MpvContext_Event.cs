@@ -1,12 +1,12 @@
 ﻿using System.Diagnostics;
-using HanumanInstitute.LibMpv.Api;
+using HanumanInstitute.LibMpv.Core;
 
 namespace HanumanInstitute.LibMpv;
 
 public unsafe partial class MpvContext
 {
     private Dictionary<MpvEventId, MpvEventHandler> _eventHandlers;
-    private delegate void MpvEventHandler(MpvEvent @event);
+    private delegate void MpvEventHandler(MpvEvent e);
 
     public event EventHandler? Shutdown;
     public event EventHandler<MpvStartFileEventArgs>? StartFile;
@@ -20,9 +20,6 @@ public unsafe partial class MpvContext
     public event EventHandler? PlaybackRestart;
     public event EventHandler? QueueOverflow;
     public event EventHandler<MpvPropertyEventArgs>? PropertyChanged;
-    public event EventHandler<MpvReplyEventArgs>? AsyncCommandReply;
-    public event EventHandler<MpvPropertyEventArgs>? AsyncGetPropertyReply;
-    public event EventHandler<MpvReplyEventArgs>? AsyncSetPropertyReply;
     public event EventHandler<MpvLogMessageEventArgs>? LogMessage;
 
     private void InitEventHandlers()
@@ -51,77 +48,77 @@ public unsafe partial class MpvContext
         };
     }
 
-    private void LogMessageHandler(MpvEvent @event)
+    private void LogMessageHandler(MpvEvent e)
     {
-        if (@event.Data != null && LogMessage != null)
+        if (e.Data != null && LogMessage != null)
         {
-            LogMessage?.Invoke(this, ToLogMessageEventArgs(@event));
+            LogMessage?.Invoke(this, ToLogMessageEventArgs(e));
         }
     }
 
-    private void AsyncSetPropertyHandler(MpvEvent @event)
+    private void AsyncSetPropertyHandler(MpvEvent e)
     {
-        if (@event.Data != null && AsyncSetPropertyReply != null)
+        if (e.Data != null)
         {
-            AsyncSetPropertyReply?.Invoke(this, new MpvReplyEventArgs(@event.ReplyUserData, @event.Error));
+            SetProperty_Reply(ToPropertyChangedEventArgs(e));
         }
     }
 
-    private void AsyncGetPropertyHandler(MpvEvent @event)
+    private void AsyncGetPropertyHandler(MpvEvent e)
     {
-        if (@event.Data != null && AsyncGetPropertyReply != null)
+        if (e.Data != null)
         {
-            AsyncGetPropertyReply?.Invoke(this, ToPropertyChangedEventArgs(@event));
+            GetProperty_Reply(ToPropertyChangedEventArgs(e));
         }
     }
 
-    private void AsyncCommandReplyHandler(MpvEvent @event)
+    private void AsyncCommandReplyHandler(MpvEvent e)
     {
-        if (@event.Data != null)
+        if (e.Data != null)
         {
-            AsyncCommandReply?.Invoke(this, new MpvReplyEventArgs(@event.ReplyUserData, @event.Error));
+            Command_Reply(ToCommandEventArgs(e));
         }
     }
 
-    private void PropertyChangedHandler(MpvEvent @event)
+    private void PropertyChangedHandler(MpvEvent e)
     {
-        if (@event.Data != null && PropertyChanged != null)
+        if (e.Data != null && PropertyChanged != null)
         {
-            PropertyChanged?.Invoke(this, ToPropertyChangedEventArgs(@event));
+            PropertyChanged?.Invoke(this, ToPropertyChangedEventArgs(e));
         }
     }
 
-    private void QueueOverflowHandler(MpvEvent @event)
+    private void QueueOverflowHandler(MpvEvent e)
     {
         QueueOverflow?.Invoke(this, EventArgs.Empty);
     }
 
-    private void PlaybackRestartHandler(MpvEvent @event)
+    private void PlaybackRestartHandler(MpvEvent e)
     {
         PlaybackRestart?.Invoke(this, EventArgs.Empty);
     }
 
-    private void SeekHandler(MpvEvent @event)
+    private void SeekHandler(MpvEvent e)
     {
         Seek?.Invoke(this, EventArgs.Empty);
     }
 
-    private void AudioReconfigHandler(MpvEvent @event)
+    private void AudioReconfigHandler(MpvEvent e)
     {
         AudioReconfig?.Invoke(this, EventArgs.Empty);
     }
 
-    private void VideoReconfigHandler(MpvEvent @event)
+    private void VideoReconfigHandler(MpvEvent e)
     {
         VideoReconfig?.Invoke(this, EventArgs.Empty);
     }
 
-    private void TickHandler(MpvEvent @event)
+    private void TickHandler(MpvEvent e)
     {
         Tick?.Invoke(this, EventArgs.Empty);
     }
 
-    private void IdleHandler(MpvEvent @event)
+    private void IdleHandler(MpvEvent e)
     {
         Idle?.Invoke(this, EventArgs.Empty);
     }
@@ -131,45 +128,45 @@ public unsafe partial class MpvContext
         FileLoaded?.Invoke(this, EventArgs.Empty);
     }
 
-    private void EndFileHandler(MpvEvent @event)
+    private void EndFileHandler(MpvEvent e)
     {
-        if (@event.Data != null && EndFile != null)
+        if (e.Data != null && EndFile != null)
         {
-            MpvEventEndFile endFile = MarshalHelper.PtrToStructure<MpvEventEndFile>((nint) @event.Data);
+            var endFile = MarshalHelper.PtrToStructure<MpvEventEndFile>((nint) e.Data);
             EndFile?.Invoke(this, new MpvEndFileEventArgs(endFile.Reason, endFile.Error, endFile.PlaylistEntryId));
         }
     }
 
-    private void StartFileHandler(MpvEvent @event)
+    private void StartFileHandler(MpvEvent e)
     {
-        if (@event.Data != null && StartFile != null)
+        if (e.Data != null && StartFile != null)
         {
-            MpvEventStartFile startFile = MarshalHelper.PtrToStructure<MpvEventStartFile>((nint) @event.Data);
+            var startFile = MarshalHelper.PtrToStructure<MpvEventStartFile>((nint) e.Data);
             StartFile?.Invoke(this, new MpvStartFileEventArgs(startFile.PlaylistEntryId));
         }
     }
 
-    private void ShutdownHandler(MpvEvent @event)
+    private void ShutdownHandler(MpvEvent e)
     {
         Shutdown?.Invoke(this, EventArgs.Empty);
     }
 
-    private void TraceHandler(MpvEvent @event)
+    private void TraceHandler(MpvEvent e)
     {
-        Debug.WriteLine($"Unhandled MPV Event: {Enum.GetName(typeof(MpvEventId), @event.EventId)}");
+        Debug.WriteLine($"Unhandled MPV Event: {Enum.GetName(typeof(MpvEventId), e.EventId)}");
     }
 
-    private void HandleEvent(MpvEvent @event)
+    private void HandleEvent(MpvEvent e)
     {
-        if (_eventHandlers.TryGetValue(@event.EventId, out var eventHandler))
+        if (_eventHandlers.TryGetValue(e.EventId, out var eventHandler))
         {
-            eventHandler.Invoke(@event);
+            eventHandler.Invoke(e);
         }
     }
 
-    private MpvLogMessageEventArgs ToLogMessageEventArgs(MpvEvent @event)
+    private MpvLogMessageEventArgs ToLogMessageEventArgs(MpvEvent e)
     {
-        MpvEventLogMessage logMessage = MarshalHelper.PtrToStructure<MpvEventLogMessage>((nint) @event.Data);
+        var logMessage = MarshalHelper.PtrToStructure<MpvEventLogMessage>((nint) e.Data);
         return new MpvLogMessageEventArgs(
             MarshalHelper.PtrToStringUtf8OrEmpty((nint) logMessage.Prefix),
             MarshalHelper.PtrToStringUtf8OrEmpty((nint) logMessage.Level),
@@ -178,10 +175,15 @@ public unsafe partial class MpvContext
         );
     }
 
-
-    private MpvPropertyEventArgs ToPropertyChangedEventArgs(MpvEvent @event)
+    private MpvCommandReplyEventArgs ToCommandEventArgs(MpvEvent e)
     {
-        MpvEventProperty property = MarshalHelper.PtrToStructure<MpvEventProperty>((nint) @event.Data);
+        var command = MarshalHelper.PtrToStructure<MpvEventCommand>((nint)e.Data);
+        return new MpvCommandReplyEventArgs(command.Result, e);
+    }
+
+    private MpvPropertyEventArgs ToPropertyChangedEventArgs(MpvEvent e)
+    {
+        var property = MarshalHelper.PtrToStructure<MpvEventProperty>((nint) e.Data);
 
         object? value = null;
 
@@ -205,6 +207,6 @@ public unsafe partial class MpvContext
             value = BitConverter.ToDouble(doubleBytes, 0);
         }
         var name = MarshalHelper.PtrToStringUtf8OrEmpty((nint) property.Name);
-        return new MpvPropertyEventArgs(property.Format, name, value, @event.ReplyUserData, @event.Error);
+        return new MpvPropertyEventArgs(property.Format, name, value, e);
     }
 }

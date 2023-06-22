@@ -1,4 +1,4 @@
-﻿namespace HanumanInstitute.LibMpv.Api;
+﻿namespace HanumanInstitute.LibMpv.Core;
 
 public sealed class Utf8Marshaler : ICustomMarshaler
 {

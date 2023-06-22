@@ -1,4 +1,4 @@
-﻿using HanumanInstitute.LibMpv.Api;
+﻿using HanumanInstitute.LibMpv.Core;
 
 namespace HanumanInstitute.LibMpv;
 
@@ -17,7 +17,7 @@ internal static class InitAndroid
             {
                 if (!s_isJvmInitialized)
                 {
-                    Mpv.LibraryVersionMap.Add("libavcodec", 0);
+                    MpvApi.LibraryVersionMap.Add("libavcodec", 0);
                     FunctionResolverBase.LibraryDependenciesMap.Add("libavcodec", new string[] { });
         
                     var functionResolver = FunctionResolverFactory.Create();

@@ -1,4 +1,4 @@
-﻿using HanumanInstitute.LibMpv.Api;
+﻿using HanumanInstitute.LibMpv.Core;
 
 namespace HanumanInstitute.LibMpv;
 
@@ -21,7 +21,7 @@ public unsafe class MpvSimpleEventLoop : IEventLoop, IDisposable
         if (IsEventLoopRunning)
         {
             IsEventLoopRunning = false;
-            Mpv.Wakeup(_context);
+            MpvApi.Wakeup(_context);
 
             if (Task.CurrentId == EventLoopTask!.Id)
             {
@@ -43,7 +43,7 @@ public unsafe class MpvSimpleEventLoop : IEventLoop, IDisposable
     {
         while (IsEventLoopRunning)
         {
-            var eventPtr = Mpv.WaitEvent(_context, -1);
+            var eventPtr = MpvApi.WaitEvent(_context, -1);
             if (eventPtr != null)
             {
                 var @event = MarshalHelper.PtrToStructure<MpvEvent>((nint)eventPtr);

@@ -1,37 +1,43 @@
 ﻿// ReSharper disable UnusedAutoPropertyAccessor.Global
 
-using HanumanInstitute.LibMpv.Api;
+using HanumanInstitute.LibMpv.Core;
 
 namespace HanumanInstitute.LibMpv;
 
-public class MpvPropertyEventArgs : EventArgs
+public class MpvEventArgs : EventArgs
 {
-    public MpvPropertyEventArgs(MpvFormat format, string name, object? value, ulong replyData, int errorCode = 0)
+    public MpvEventArgs(MpvEvent e)
+    {
+        RequestId = e.ReplyUserData;
+        ErrorCode = e.Error;
+    }
+
+    public ulong RequestId { get; }
+    public int ErrorCode { get; }
+}
+
+public class MpvPropertyEventArgs : MpvEventArgs
+{
+    public MpvPropertyEventArgs(MpvFormat format, string name, object? value, MpvEvent e) : base(e)
     {
         Format = format;
         Name = name;
         Value = value;
-        ReplyData = replyData;
-        ErrorCode = errorCode;
     }
 
     public MpvFormat Format { get; }
     public string Name { get; }
     public object? Value { get; }
-    public ulong ReplyData { get; }
-    public int ErrorCode { get; }
 }
 
-public class MpvReplyEventArgs: EventArgs
+public class MpvCommandReplyEventArgs : MpvEventArgs
 {
-    public MpvReplyEventArgs(ulong replyData, int errorCode)
+    public MpvCommandReplyEventArgs(MpvNode data, MpvEvent e) : base(e) 
     {
-        ReplyData = replyData;
-        ErrorCode = errorCode;
+        Data = data;
     }
 
-    public ulong ReplyData { get; }
-    public int ErrorCode { get; }
+    public MpvNode Data { get; }
 }
 
 public class MpvLogMessageEventArgs : EventArgs

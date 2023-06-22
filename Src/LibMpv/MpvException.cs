@@ -1,4 +1,4 @@
-﻿using HanumanInstitute.LibMpv.Api;
+﻿using HanumanInstitute.LibMpv.Core;
 
 namespace HanumanInstitute.LibMpv;
 
@@ -13,6 +13,6 @@ public class MpvException : Exception
 
     public static MpvException FromCode(int code)
     {
-        return new MpvException(Mpv.ErrorString(code), code);
+        return new MpvException(MpvApi.ErrorString(code), code);
     }
 }

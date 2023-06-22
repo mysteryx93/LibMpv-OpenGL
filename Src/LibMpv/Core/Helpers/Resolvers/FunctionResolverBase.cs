@@ -1,4 +1,4 @@
-﻿namespace HanumanInstitute.LibMpv.Api;
+﻿namespace HanumanInstitute.LibMpv.Core;
 
 public abstract class FunctionResolverBase : IFunctionResolver
 {
@@ -28,7 +28,7 @@ public abstract class FunctionResolverBase : IFunctionResolver
             {
                 throw new EntryPointNotFoundException($"Could not find the entrypoint for {functionName}.");
             }
-            return default!;
+            return default;
         }
 
 #if NETSTANDARD2_0_OR_GREATER
@@ -42,7 +42,7 @@ public abstract class FunctionResolverBase : IFunctionResolver
             {
                 throw;
             }
-            return default!;
+            return default;
         }
 #else
         return (T)(object)Marshal.GetDelegateForFunctionPointer(functionPointer, typeof(T));
@@ -64,7 +64,7 @@ public abstract class FunctionResolverBase : IFunctionResolver
                     .ForEach(n => GetOrLoadLibrary(n, false));
             }
 
-            var version = Mpv.LibraryVersionMap[libraryName];
+            var version = MpvApi.LibraryVersionMap[libraryName];
             var nativeLibraryName = GetNativeLibraryName(libraryName, version);
             foreach (var path in GetSearchPaths())
             {
@@ -83,7 +83,7 @@ public abstract class FunctionResolverBase : IFunctionResolver
             else if (throwOnError)
             {
                 throw new DllNotFoundException(
-                    $"Unable to load DLL '{libraryName}.{version} under {Mpv.RootPath}': The specified module could not be found.");
+                    $"Unable to load DLL '{libraryName}.{version} under {MpvApi.RootPath}': The specified module could not be found.");
             }
 
             return ptr;

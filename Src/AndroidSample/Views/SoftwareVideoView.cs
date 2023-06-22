@@ -50,7 +50,7 @@ public class SoftwareVideoView: UserControl
         if (renderTarget == null || renderTarget.PixelSize.Width != bitmapSize.Width || renderTarget.PixelSize.Height != bitmapSize.Height)
             this.renderTarget = new WriteableBitmap(bitmapSize, new Vector(96.0, 96.0), PixelFormat.Rgba8888, AlphaFormat.Premul);
 
-        using (ILockedFramebuffer lockedBitmap = this.renderTarget.Lock())
+        using (var lockedBitmap = this.renderTarget.Lock())
         {
             _mpvContext.SoftwareRender(lockedBitmap.Size.Width, lockedBitmap.Size.Height, lockedBitmap.Address, "rgba");
         }

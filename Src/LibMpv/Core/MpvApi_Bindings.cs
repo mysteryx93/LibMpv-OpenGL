@@ -1,70 +1,70 @@
 using System.Security;
 
-namespace HanumanInstitute.LibMpv.Api;
+namespace HanumanInstitute.LibMpv.Core;
 
-internal static unsafe class MpvBindings
+public static unsafe partial class MpvApi
 {
-    private static IFunctionResolver FunctionResolver => _functionResolver ??= FunctionResolverFactory.Create();
-    private static IFunctionResolver? _functionResolver;
+    private static IFunctionResolver FunctionResolver => s_functionResolver ??= FunctionResolverFactory.Create();
+    private static IFunctionResolver? s_functionResolver;
 
     private static T GetFunction<T>(string functionName)
         where T : Delegate =>
-        FunctionResolver.GetFunctionDelegate<T>(Mpv.DllName, functionName, true) ?? throw new NotSupportedException();
+        FunctionResolver.GetFunctionDelegate<T>(MpvApi.DllName, functionName) ?? throw new NotSupportedException();
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void AbortAsyncCommandDelegate(MpvHandle* ctx, ulong replyUserData);
-    public static AbortAsyncCommandDelegate AbortAsyncCommand => _abortAsyncCommandDelegate ??= GetFunction<AbortAsyncCommandDelegate>("mpv_abort_async_command");
-    private static AbortAsyncCommandDelegate? _abortAsyncCommandDelegate;
+    public static AbortAsyncCommandDelegate AbortAsyncCommand => s_abortAsyncCommandDelegate ??= GetFunction<AbortAsyncCommandDelegate>("mpv_abort_async_command");
+    private static AbortAsyncCommandDelegate? s_abortAsyncCommandDelegate;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate ulong ClientApiVersionDelegate();
-    public static ClientApiVersionDelegate ClientApiVersion => _clientApiVersion ??= GetFunction<ClientApiVersionDelegate>("mpv_client_api_version");
-    private static ClientApiVersionDelegate? _clientApiVersion;
+    public static ClientApiVersionDelegate ClientApiVersion => s_clientApiVersion ??= GetFunction<ClientApiVersionDelegate>("mpv_client_api_version");
+    private static ClientApiVersionDelegate? s_clientApiVersion;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate long ClientIdDelegate(MpvHandle* ctx);
-    public static ClientIdDelegate ClientId => _clientId ??= GetFunction<ClientIdDelegate>("mpv_client_id");
-    private static ClientIdDelegate? _clientId;
+    public static ClientIdDelegate ClientId => s_clientId ??= GetFunction<ClientIdDelegate>("mpv_client_id");
+    private static ClientIdDelegate? s_clientId;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(ConstCharPtrMarshaler))]
     public delegate string ClientNameDelegate(MpvHandle* ctx);
-    public static ClientNameDelegate ClientName => _clientName ??= GetFunction<ClientNameDelegate>("mpv_client_name");
-    private static ClientNameDelegate? _clientName;
+    public static ClientNameDelegate ClientName => s_clientName ??= GetFunction<ClientNameDelegate>("mpv_client_name");
+    private static ClientNameDelegate? s_clientName;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int CommandDelegate(MpvHandle* ctx, byte** args);
-    public static CommandDelegate Command => _command ??= GetFunction<CommandDelegate>("mpv_command");
-    private static CommandDelegate? _command;
+    public static CommandDelegate Command => s_command ??= GetFunction<CommandDelegate>("mpv_command");
+    private static CommandDelegate? s_command;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int CommandAsyncDelegate(MpvHandle* ctx, ulong replyUserData, byte** args);
-    public static CommandAsyncDelegate CommandAsync => _commandAsync ??= GetFunction<CommandAsyncDelegate>("mpv_command_async");
-    private static CommandAsyncDelegate? _commandAsync;
+    public static CommandAsyncDelegate CommandAsync => s_commandAsync ??= GetFunction<CommandAsyncDelegate>("mpv_command_async");
+    private static CommandAsyncDelegate? s_commandAsync;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int CommandNodeDelegate(MpvHandle* ctx, MpvNode* args, MpvNode* result);
-    public static CommandNodeDelegate CommandNode => _commandNode ??= GetFunction<CommandNodeDelegate>("mpv_command_node");
-    private static CommandNodeDelegate? _commandNode;
+    public static CommandNodeDelegate CommandNode => s_commandNode ??= GetFunction<CommandNodeDelegate>("mpv_command_node");
+    private static CommandNodeDelegate? s_commandNode;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int CommandNodeAsyncDelegate(MpvHandle* ctx, ulong replyUserData, MpvNode* args);
-    public static CommandNodeAsyncDelegate CommandNodeAsync => _commandNodeAsync ??= GetFunction<CommandNodeAsyncDelegate>("mpv_command_node_async");
-    private static CommandNodeAsyncDelegate? _commandNodeAsync;
+    public static CommandNodeAsyncDelegate CommandNodeAsync => s_commandNodeAsync ??= GetFunction<CommandNodeAsyncDelegate>("mpv_command_node_async");
+    private static CommandNodeAsyncDelegate? s_commandNodeAsync;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int CommandRetDelegate(MpvHandle* ctx, byte** args, MpvNode* result);
-    public static CommandRetDelegate CommandRet => _commandRet ??= GetFunction<CommandRetDelegate>("mpv_command_ret");
-    private static CommandRetDelegate? _commandRet;
+    public static CommandRetDelegate CommandRet => s_commandRet ??= GetFunction<CommandRetDelegate>("mpv_command_ret");
+    private static CommandRetDelegate? s_commandRet;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -75,14 +75,14 @@ internal static unsafe class MpvBindings
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
     #endif
     string args);
-    public static CommandStringDelegate CommandString => _commandString ??= GetFunction<CommandStringDelegate>("mpv_command_string");
-    private static CommandStringDelegate? _commandString;
+    public static CommandStringDelegate CommandString => s_commandString ??= GetFunction<CommandStringDelegate>("mpv_command_string");
+    private static CommandStringDelegate? s_commandString;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate MpvHandle* CreateDelegate();
-    public static CreateDelegate Create => _create ??= GetFunction<CreateDelegate>("mpv_create");
-    private static CreateDelegate? _create;
+    public static CreateDelegate Create => s_create ??= GetFunction<CreateDelegate>("mpv_create");
+    private static CreateDelegate? s_create;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -93,8 +93,8 @@ internal static unsafe class MpvBindings
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
     #endif
     string name);
-    public static CreateClientDelegate CreateClient => _createClient ??= GetFunction<CreateClientDelegate>("mpv_create_client");
-    private static CreateClientDelegate? _createClient;
+    public static CreateClientDelegate CreateClient => s_createClient ??= GetFunction<CreateClientDelegate>("mpv_create_client");
+    private static CreateClientDelegate? s_createClient;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -105,8 +105,8 @@ internal static unsafe class MpvBindings
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
     #endif
     string name);
-    public static CreateWeakClientDelegate CreateWeakClient => _createWeakClient ??= GetFunction<CreateWeakClientDelegate>("mpv_create_weak_client");
-    private static CreateWeakClientDelegate? _createWeakClient;
+    public static CreateWeakClientDelegate CreateWeakClient => s_createWeakClient ??= GetFunction<CreateWeakClientDelegate>("mpv_create_weak_client");
+    private static CreateWeakClientDelegate? s_createWeakClient;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -117,46 +117,46 @@ internal static unsafe class MpvBindings
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
     #endif
     string name);
-    public static DelPropertyDelegate DelProperty => _delProperty ??= GetFunction<DelPropertyDelegate>("mpv_del_property");
-    private static DelPropertyDelegate? _delProperty;
+    public static DelPropertyDelegate DelProperty => s_delProperty ??= GetFunction<DelPropertyDelegate>("mpv_del_property");
+    private static DelPropertyDelegate? s_delProperty;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void DestroyDelegate(MpvHandle* ctx);
-    public static DestroyDelegate Destroy => _destroy ??= GetFunction<DestroyDelegate>("mpv_destroy");
-    private static DestroyDelegate? _destroy;
+    public static DestroyDelegate Destroy => s_destroy ??= GetFunction<DestroyDelegate>("mpv_destroy");
+    private static DestroyDelegate? s_destroy;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(ConstCharPtrMarshaler))]
     public delegate string ErrorStringDelegate(int error);
-    public static ErrorStringDelegate ErrorString => _errorString ??= GetFunction<ErrorStringDelegate>("mpv_error_string");
-    private static ErrorStringDelegate? _errorString;
+    public static ErrorStringDelegate ErrorString => s_errorString ??= GetFunction<ErrorStringDelegate>("mpv_error_string");
+    private static ErrorStringDelegate? s_errorString;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(ConstCharPtrMarshaler))]
-    public delegate string EventNameDelegate(MpvEventId @event);
-    public static EventNameDelegate EventName => _eventName ??= GetFunction<EventNameDelegate>("mpv_event_name");
-    private static EventNameDelegate? _eventName;
+    public delegate string? EventNameDelegate(MpvEventId eventId);
+    public static EventNameDelegate EventName => s_eventName ??= GetFunction<EventNameDelegate>("mpv_event_name");
+    private static EventNameDelegate? s_eventName;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int EventToNodeDelegate(MpvNode* dst, MpvEvent* src);
-    public static EventToNodeDelegate EventToNode => _eventToNode ??= GetFunction<EventToNodeDelegate>("mpv_event_to_node");
-    private static EventToNodeDelegate? _eventToNode;
+    public static EventToNodeDelegate EventToNode => s_eventToNode ??= GetFunction<EventToNodeDelegate>("mpv_event_to_node");
+    private static EventToNodeDelegate? s_eventToNode;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void FreeDelegate(void* data);
-    public static FreeDelegate Free => _free ??= GetFunction<FreeDelegate>("mpv_free");
-    private static FreeDelegate? _free;
+    public static FreeDelegate Free => s_free ??= GetFunction<FreeDelegate>("mpv_free");
+    private static FreeDelegate? s_free;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void FreeNodeContentsDelegate(MpvNode* node);
-    public static FreeNodeContentsDelegate FreeNodeContents => _freeNodeContents ??= GetFunction<FreeNodeContentsDelegate>("mpv_free_node_contents");
-    private static FreeNodeContentsDelegate? _freeNodeContents;
+    public static FreeNodeContentsDelegate FreeNodeContents => s_freeNodeContents ??= GetFunction<FreeNodeContentsDelegate>("mpv_free_node_contents");
+    private static FreeNodeContentsDelegate? s_freeNodeContents;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -167,8 +167,8 @@ internal static unsafe class MpvBindings
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
     #endif
     string name, MpvFormat format, void* data);
-    public static GetPropertyDelegate GetProperty => _getProperty ??= GetFunction<GetPropertyDelegate>("mpv_get_property");
-    private static GetPropertyDelegate? _getProperty;
+    public static GetPropertyDelegate GetProperty => s_getProperty ??= GetFunction<GetPropertyDelegate>("mpv_get_property");
+    private static GetPropertyDelegate? s_getProperty;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -179,8 +179,8 @@ internal static unsafe class MpvBindings
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
     #endif
     string name, MpvFormat format);
-    public static GetPropertyAsyncDelegate GetPropertyAsync => _getPropertyAsync ??= GetFunction<GetPropertyAsyncDelegate>("mpv_get_property_async");
-    private static GetPropertyAsyncDelegate? _getPropertyAsync;
+    public static GetPropertyAsyncDelegate GetPropertyAsync => s_getPropertyAsync ??= GetFunction<GetPropertyAsyncDelegate>("mpv_get_property_async");
+    private static GetPropertyAsyncDelegate? s_getPropertyAsync;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -191,8 +191,8 @@ internal static unsafe class MpvBindings
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
     #endif
     string name);
-    public static GetPropertyOsdStringDelegate GetPropertyOsdString => _getPropertyOsdString ??= GetFunction<GetPropertyOsdStringDelegate>("mpv_get_property_osd_string");
-    private static GetPropertyOsdStringDelegate? _getPropertyOsdString;
+    public static GetPropertyOsdStringDelegate GetPropertyOsdString => s_getPropertyOsdString ??= GetFunction<GetPropertyOsdStringDelegate>("mpv_get_property_osd_string");
+    private static GetPropertyOsdStringDelegate? s_getPropertyOsdString;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -203,20 +203,20 @@ internal static unsafe class MpvBindings
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
     #endif
     string name);
-    public static GetPropertyStringDelegate GetPropertyString => _getPropertyString ??= GetFunction<GetPropertyStringDelegate>("mpv_get_property_string");
-    private static GetPropertyStringDelegate? _getPropertyString;
+    public static GetPropertyStringDelegate GetPropertyString => s_getPropertyString ??= GetFunction<GetPropertyStringDelegate>("mpv_get_property_string");
+    private static GetPropertyStringDelegate? s_getPropertyString;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate long GetTimeUsDelegate(MpvHandle* ctx);
-    public static GetTimeUsDelegate GetTimeUs => _getTimeUs ??= GetFunction<GetTimeUsDelegate>("mpv_get_time_us");
-    private static GetTimeUsDelegate? _getTimeUs;
+    public static GetTimeUsDelegate GetTimeUs => s_getTimeUs ??= GetFunction<GetTimeUsDelegate>("mpv_get_time_us");
+    private static GetTimeUsDelegate? s_getTimeUs;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int GetWakeupPipeDelegate(MpvHandle* ctx);
-    public static GetWakeupPipeDelegate GetWakeupPipe => _getWakeupPipe ??= GetFunction<GetWakeupPipeDelegate>("mpv_get_wakeup_pipe");
-    private static GetWakeupPipeDelegate? _getWakeupPipe;
+    public static GetWakeupPipeDelegate GetWakeupPipe => s_getWakeupPipe ??= GetFunction<GetWakeupPipeDelegate>("mpv_get_wakeup_pipe");
+    private static GetWakeupPipeDelegate? s_getWakeupPipe;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -227,20 +227,20 @@ internal static unsafe class MpvBindings
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
     #endif
     string name, int priority);
-    public static HookAddDelegate HookAdd => _hookAdd ??= GetFunction<HookAddDelegate>("mpv_hook_add");
-    private static HookAddDelegate? _hookAdd;
+    public static HookAddDelegate HookAdd => s_hookAdd ??= GetFunction<HookAddDelegate>("mpv_hook_add");
+    private static HookAddDelegate? s_hookAdd;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int HookContinueDelegate(MpvHandle* ctx, ulong id);
-    public static HookContinueDelegate HookContinue => _hookContinue ??= GetFunction<HookContinueDelegate>("mpv_hook_continue");
-    private static HookContinueDelegate? _hookContinue;
+    public static HookContinueDelegate HookContinue => s_hookContinue ??= GetFunction<HookContinueDelegate>("mpv_hook_continue");
+    private static HookContinueDelegate? s_hookContinue;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int InitializeDelegate(MpvHandle* ctx);
-    public static InitializeDelegate Initialize => _initialize ??= GetFunction<InitializeDelegate>("mpv_initialize");
-    private static InitializeDelegate? _initialize;
+    public static InitializeDelegate Initialize => s_initialize ??= GetFunction<InitializeDelegate>("mpv_initialize");
+    private static InitializeDelegate? s_initialize;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -251,8 +251,8 @@ internal static unsafe class MpvBindings
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
     #endif
     string filename);
-    public static LoadConfigFileDelegate LoadConfigFile => _loadConfigFile ??= GetFunction<LoadConfigFileDelegate>("mpv_load_config_file");
-    private static LoadConfigFileDelegate? _loadConfigFile;
+    public static LoadConfigFileDelegate LoadConfigFile => s_loadConfigFile ??= GetFunction<LoadConfigFileDelegate>("mpv_load_config_file");
+    private static LoadConfigFileDelegate? s_loadConfigFile;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -263,62 +263,62 @@ internal static unsafe class MpvBindings
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
     #endif
     string name, MpvFormat format);
-    public static ObservePropertyDelegate ObserveProperty => _observeProperty ??= GetFunction<ObservePropertyDelegate>("mpv_observe_property");
-    private static ObservePropertyDelegate? _observeProperty;
+    public static ObservePropertyDelegate ObserveProperty => s_observeProperty ??= GetFunction<ObservePropertyDelegate>("mpv_observe_property");
+    private static ObservePropertyDelegate? s_observeProperty;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int RenderContextCreateDelegate(MpvRenderContext** res, MpvHandle* mpv, MpvRenderParam* @params);
-    public static RenderContextCreateDelegate RenderContextCreate => _renderContextCreate ??= GetFunction<RenderContextCreateDelegate>("mpv_render_context_create");
-    private static RenderContextCreateDelegate? _renderContextCreate;
+    public static RenderContextCreateDelegate RenderContextCreate => s_renderContextCreate ??= GetFunction<RenderContextCreateDelegate>("mpv_render_context_create");
+    private static RenderContextCreateDelegate? s_renderContextCreate;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void RenderContextFreeDelegate(MpvRenderContext* ctx);
-    public static RenderContextFreeDelegate RenderContextFree => _renderContextFree ??= GetFunction<RenderContextFreeDelegate>("mpv_render_context_free");
-    private static RenderContextFreeDelegate? _renderContextFree;
+    public static RenderContextFreeDelegate RenderContextFree => s_renderContextFree ??= GetFunction<RenderContextFreeDelegate>("mpv_render_context_free");
+    private static RenderContextFreeDelegate? s_renderContextFree;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int RenderContextGetInfoDelegate(MpvRenderContext* ctx, MpvRenderParam param);
-    public static RenderContextGetInfoDelegate RenderContextGetInfo => _renderContextGetInfo ??= GetFunction<RenderContextGetInfoDelegate>("mpv_render_context_get_info");
-    private static RenderContextGetInfoDelegate? _renderContextGetInfo;
+    public static RenderContextGetInfoDelegate RenderContextGetInfo => s_renderContextGetInfo ??= GetFunction<RenderContextGetInfoDelegate>("mpv_render_context_get_info");
+    private static RenderContextGetInfoDelegate? s_renderContextGetInfo;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int RenderContextRenderDelegate(MpvRenderContext* ctx, MpvRenderParam* @params);
-    public static RenderContextRenderDelegate RenderContextRender => _renderContextRender ??= GetFunction<RenderContextRenderDelegate>("mpv_render_context_render");
-    private static RenderContextRenderDelegate? _renderContextRender;
+    public static RenderContextRenderDelegate RenderContextRender => s_renderContextRender ??= GetFunction<RenderContextRenderDelegate>("mpv_render_context_render");
+    private static RenderContextRenderDelegate? s_renderContextRender;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void RenderContextReportSwapDelegate(MpvRenderContext* ctx);
-    public static RenderContextReportSwapDelegate RenderContextReportSwap => _renderContextReportSwap ??= GetFunction<RenderContextReportSwapDelegate>("mpv_render_context_report_swap");
-    private static RenderContextReportSwapDelegate? _renderContextReportSwap;
+    public static RenderContextReportSwapDelegate RenderContextReportSwap => s_renderContextReportSwap ??= GetFunction<RenderContextReportSwapDelegate>("mpv_render_context_report_swap");
+    private static RenderContextReportSwapDelegate? s_renderContextReportSwap;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int RenderContextSetParameterDelegate(MpvRenderContext* ctx, MpvRenderParam param);
-    public static RenderContextSetParameterDelegate RenderContextSetParameter => _renderContextSetParameter ??= GetFunction<RenderContextSetParameterDelegate>("mpv_render_context_set_parameter");
-    private static RenderContextSetParameterDelegate? _renderContextSetParameter;
+    public static RenderContextSetParameterDelegate RenderContextSetParameter => s_renderContextSetParameter ??= GetFunction<RenderContextSetParameterDelegate>("mpv_render_context_set_parameter");
+    private static RenderContextSetParameterDelegate? s_renderContextSetParameter;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void RenderContextSetUpdateCallbackDelegate(MpvRenderContext* ctx, MpvRenderContextSetUpdateCallbackCallbackFunc callback, void* callbackCtx);
-    public static RenderContextSetUpdateCallbackDelegate RenderContextSetUpdateCallback => _renderContextSetUpdateCallback ??= GetFunction<RenderContextSetUpdateCallbackDelegate>("mpv_render_context_set_update_callback");
-    private static RenderContextSetUpdateCallbackDelegate? _renderContextSetUpdateCallback;
+    public static RenderContextSetUpdateCallbackDelegate RenderContextSetUpdateCallback => s_renderContextSetUpdateCallback ??= GetFunction<RenderContextSetUpdateCallbackDelegate>("mpv_render_context_set_update_callback");
+    private static RenderContextSetUpdateCallbackDelegate? s_renderContextSetUpdateCallback;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate ulong RenderContextUpdateDelegate(MpvRenderContext* ctx);
-    public static RenderContextUpdateDelegate RenderContextUpdate => _renderContextUpdate ??= GetFunction<RenderContextUpdateDelegate>("mpv_render_context_update");
-    private static RenderContextUpdateDelegate? _renderContextUpdate;
+    public static RenderContextUpdateDelegate RenderContextUpdate => s_renderContextUpdate ??= GetFunction<RenderContextUpdateDelegate>("mpv_render_context_update");
+    private static RenderContextUpdateDelegate? s_renderContextUpdate;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate int RequestEventDelegate(MpvHandle* ctx, MpvEventId @event, int enable);
-    public static RequestEventDelegate RequestEvent => _requestEvent ??= GetFunction<RequestEventDelegate>("mpv_request_event");
-    private static RequestEventDelegate? _requestEvent;
+    public delegate int RequestEventDelegate(MpvHandle* ctx, MpvEventId eventId, int enable);
+    public static RequestEventDelegate RequestEvent => s_requestEvent ??= GetFunction<RequestEventDelegate>("mpv_request_event");
+    private static RequestEventDelegate? s_requestEvent;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -329,8 +329,8 @@ internal static unsafe class MpvBindings
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
     #endif
     string minLevel);
-    public static RequestLogMessagesDelegate RequestLogMessages => _requestLogMessages ??= GetFunction<RequestLogMessagesDelegate>("mpv_request_log_messages");
-    private static RequestLogMessagesDelegate? _requestLogMessages;
+    public static RequestLogMessagesDelegate RequestLogMessages => s_requestLogMessages ??= GetFunction<RequestLogMessagesDelegate>("mpv_request_log_messages");
+    private static RequestLogMessagesDelegate? s_requestLogMessages;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -341,8 +341,8 @@ internal static unsafe class MpvBindings
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
     #endif
     string name, MpvFormat format, void* data);
-    public static SetOptionDelegate SetOption => _setOption ??= GetFunction<SetOptionDelegate>("mpv_set_option");
-    private static SetOptionDelegate? _setOption;
+    public static SetOptionDelegate SetOption => s_setOption ??= GetFunction<SetOptionDelegate>("mpv_set_option");
+    private static SetOptionDelegate? s_setOption;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -359,8 +359,8 @@ internal static unsafe class MpvBindings
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
     #endif
     string data);
-    public static SetOptionStringDelegate SetOptionString => _setOptionString ??= GetFunction<SetOptionStringDelegate>("mpv_set_option_string");
-    private static SetOptionStringDelegate? _setOptionString;
+    public static SetOptionStringDelegate SetOptionString => s_setOptionString ??= GetFunction<SetOptionStringDelegate>("mpv_set_option_string");
+    private static SetOptionStringDelegate? s_setOptionString;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -371,8 +371,8 @@ internal static unsafe class MpvBindings
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
     #endif
     string name, MpvFormat format, void* data);
-    public static SetPropertyDelegate SetProperty => _setProperty ??= GetFunction<SetPropertyDelegate>("mpv_set_property");
-    private static SetPropertyDelegate? _setProperty;
+    public static SetPropertyDelegate SetProperty => s_setProperty ??= GetFunction<SetPropertyDelegate>("mpv_set_property");
+    private static SetPropertyDelegate? s_setProperty;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -383,8 +383,8 @@ internal static unsafe class MpvBindings
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
     #endif
     string name, MpvFormat format, void* data);
-    public static SetPropertyAsyncDelegate SetPropertyAsync => _setPropertyAsync ??= GetFunction<SetPropertyAsyncDelegate>("mpv_set_property_async");
-    private static SetPropertyAsyncDelegate? _setPropertyAsync;
+    public static SetPropertyAsyncDelegate SetPropertyAsync => s_setPropertyAsync ??= GetFunction<SetPropertyAsyncDelegate>("mpv_set_property_async");
+    private static SetPropertyAsyncDelegate? s_setPropertyAsync;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -401,14 +401,14 @@ internal static unsafe class MpvBindings
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
     #endif
     string data);
-    public static SetPropertyStringDelegate SetPropertyString => _setPropertyString ??= GetFunction<SetPropertyStringDelegate>("mpv_set_property_string");
-    private static SetPropertyStringDelegate? _setPropertyString;
+    public static SetPropertyStringDelegate SetPropertyString => s_setPropertyString ??= GetFunction<SetPropertyStringDelegate>("mpv_set_property_string");
+    private static SetPropertyStringDelegate? s_setPropertyString;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void SetWakeupCallbackDelegate(MpvHandle* ctx, MpvSetWakeupCallbackCbFunc cb, void* d);
-    public static SetWakeupCallbackDelegate SetWakeupCallback => _setWakeupCallback ??= GetFunction<SetWakeupCallbackDelegate>("mpv_set_wakeup_callback");
-    private static SetWakeupCallbackDelegate? _setWakeupCallback;
+    public static SetWakeupCallbackDelegate SetWakeupCallback => s_setWakeupCallback ??= GetFunction<SetWakeupCallbackDelegate>("mpv_set_wakeup_callback");
+    private static SetWakeupCallbackDelegate? s_setWakeupCallback;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -419,36 +419,36 @@ internal static unsafe class MpvBindings
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
     #endif
     string protocol, void* userData, MpvStreamCbAddRoOpenFnFunc openFn);
-    public static StreamCbAddRoDelegate StreamCbAddRo => _streamCbAddRo ??= GetFunction<StreamCbAddRoDelegate>("mpv_stream_cb_add_ro");
-    private static StreamCbAddRoDelegate? _streamCbAddRo;
+    public static StreamCbAddRoDelegate StreamCbAddRo => s_streamCbAddRo ??= GetFunction<StreamCbAddRoDelegate>("mpv_stream_cb_add_ro");
+    private static StreamCbAddRoDelegate? s_streamCbAddRo;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void TerminateDestroyDelegate(MpvHandle* ctx);
-    public static TerminateDestroyDelegate TerminateDestroy => _terminateDestroy ??= GetFunction<TerminateDestroyDelegate>("mpv_terminate_destroy");
-    private static TerminateDestroyDelegate? _terminateDestroy;
+    public static TerminateDestroyDelegate TerminateDestroy => s_terminateDestroy ??= GetFunction<TerminateDestroyDelegate>("mpv_terminate_destroy");
+    private static TerminateDestroyDelegate? s_terminateDestroy;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int UnobservePropertyDelegate(MpvHandle* mpv, ulong registeredReplyUserData);
-    public static UnobservePropertyDelegate UnobserveProperty => _unobserveProperty ??= GetFunction<UnobservePropertyDelegate>("mpv_unobserve_property");
-    private static UnobservePropertyDelegate? _unobserveProperty;
+    public static UnobservePropertyDelegate UnobserveProperty => s_unobserveProperty ??= GetFunction<UnobservePropertyDelegate>("mpv_unobserve_property");
+    private static UnobservePropertyDelegate? s_unobserveProperty;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void WaitAsyncRequestsDelegate(MpvHandle* ctx);
-    public static WaitAsyncRequestsDelegate WaitAsyncRequests => _waitAsyncRequests ??= GetFunction<WaitAsyncRequestsDelegate>("mpv_wait_async_requests");
-    private static WaitAsyncRequestsDelegate? _waitAsyncRequests;
+    public static WaitAsyncRequestsDelegate WaitAsyncRequests => s_waitAsyncRequests ??= GetFunction<WaitAsyncRequestsDelegate>("mpv_wait_async_requests");
+    private static WaitAsyncRequestsDelegate? s_waitAsyncRequests;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate MpvEvent* WaitEventDelegate(MpvHandle* ctx, double timeout);
-    public static WaitEventDelegate WaitEvent => _waitEvent ??= GetFunction<WaitEventDelegate>("mpv_wait_event");
-    private static WaitEventDelegate? _waitEvent;
+    public static WaitEventDelegate WaitEvent => s_waitEvent ??= GetFunction<WaitEventDelegate>("mpv_wait_event");
+    private static WaitEventDelegate? s_waitEvent;
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void WakeupDelegate(MpvHandle* ctx);
-    public static WakeupDelegate Wakeup => _wakeup ??= GetFunction<WakeupDelegate>("mpv_wakeup");
-    private static WakeupDelegate? _wakeup;
+    public static WakeupDelegate Wakeup => s_wakeup ??= GetFunction<WakeupDelegate>("mpv_wakeup");
+    private static WakeupDelegate? s_wakeup;
 }

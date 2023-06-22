@@ -1,5 +1,6 @@
 ﻿using HanumanInstitute.LibMpv;
 using HanumanInstitute.LibMpv.Avalonia;
+using HanumanInstitute.LibMpv.Core;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
@@ -19,16 +20,15 @@ public class MainViewModel : ReactiveObject
         set { this.RaiseAndSetIfChanged(ref _mediaUrl, value); }
     }
 
-    public void Play()
+    public async void Play()
     {
-        // Stop();
-        Mpv.Command("loadfile", MediaUrl, "replace");
-        // Mpv.SetPropertyFlag("pause", false);
+        Stop();
+        await Mpv.CommandAsync(null, "loadfile", MediaUrl, "replace");
     }
 
     public void Pause() => Pause(null);
 
-    public void Pause(bool? value)
+    public async void Pause(bool? value)
     {
         value ??= !Mpv.GetPropertyFlag("pause");
         Mpv.SetPropertyFlag("pause", value.Value);

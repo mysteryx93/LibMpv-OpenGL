@@ -2,7 +2,6 @@ using System;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using HanumanInstitute.LibMpv.Api;
 using Sample.LibMpv.Avalonia.Android.ViewModels;
 using Sample.LibMpv.Avalonia.Android.Views;
 

@@ -1,4 +1,4 @@
-namespace HanumanInstitute.LibMpv.Api;
+namespace HanumanInstitute.LibMpv.Core;
 
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 public unsafe delegate void* MpvOpenglInitParamsGetProcAddress (void* ctx,     

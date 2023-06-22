@@ -1,4 +1,4 @@
-﻿namespace HanumanInstitute.LibMpv.Api;
+﻿namespace HanumanInstitute.LibMpv.Core;
 
 /// <summary>Supports loading functions from native libraries. Provides a more flexible alternative to P/Invoke.</summary>
 public interface IFunctionResolver

@@ -1,4 +1,4 @@
-namespace HanumanInstitute.LibMpv.Api;
+namespace HanumanInstitute.LibMpv.Core;
 
 /// <summary>Since API version 1.9.</summary>
 public enum MpvEndFileReason
@@ -18,9 +18,9 @@ public enum MpvEndFileReason
 /// <summary>List of error codes than can be returned by API functions. 0 and positive return values always mean success, negative values are always errors.</summary>
 public enum MpvError
 {
-    /// <summary>No error happened (used to signal successful operation). Keep in mind that many API functions returning error codes can also return positive values, which also indicate success. API users can hardcode the fact that &quot;&gt;= 0&quot; means success.</summary>
+    /// <summary>No error happened (used to signal successful operation). Keep in mind that many API functions returning error codes can also return positive values, which also indicate success. API users can hardcode the fact that ">= 0" means success.</summary>
     Success = 0,
-    /// <summary>The event ring buffer is full. This means the client is choked, and can't receive any events. This can happen when too many asynchronous requests have been made, but not answered. Probably never happens in practice, unless the mpv core is frozen for some reason, and the client keeps making asynchronous requests. (Bugs in the client API implementation could also trigger this, e.g. if events become &quot;lost&quot;.)</summary>
+    /// <summary>The event ring buffer is full. This means the client is choked, and can't receive any events. This can happen when too many asynchronous requests have been made, but not answered. Probably never happens in practice, unless the mpv core is frozen for some reason, and the client keeps making asynchronous requests. (Bugs in the client API implementation could also trigger this, e.g. if events become "lost".)</summary>
     EventQueueFull = -1,
     /// <summary>Memory allocation failed.</summary>
     NoMemory = -2,
@@ -113,7 +113,7 @@ public enum MpvFormat
     String = 1,
     /// <summary>The basic type is char*. It returns the OSD property string, like using ${property} in input.conf (see input.rst). In many cases, this is the same as the raw string, but in other cases it's formatted for display on OSD. It's intended to be human readable. Do not attempt to parse these strings.</summary>
     OsdString = 2,
-    /// <summary>The basic type is int. The only allowed values are 0 (&quot;no&quot;) and 1 (&quot;yes&quot;).</summary>
+    /// <summary>The basic type is int. The only allowed values are 0 ("no") and 1 ("yes").</summary>
     Flag = 3,
     /// <summary>The basic type is int64_t.</summary>
     Int64 = 4,
@@ -156,7 +156,7 @@ public enum MpvRenderFrameInfoFlag
     Present = 1,
     /// <summary>If set, the frame is not an actual new video frame, but a redraw request. For example if the video is paused, and an option that affects video rendering was changed (or any other reason), an update request can be issued and this flag will be set.</summary>
     Redraw = 2,
-    /// <summary>If set, this is supposed to reproduce the previous frame perfectly. This is usually used for certain &quot;video-sync&quot; options (&quot;display-...&quot; modes). Typically the renderer will blit the video from a FBO. Unset otherwise.</summary>
+    /// <summary>If set, this is supposed to reproduce the previous frame perfectly. This is usually used for certain "video-sync" options ("display-..." modes). Typically the renderer will blit the video from a FBO. Unset otherwise.</summary>
     Repeat = 4,
     /// <summary>If set, the player timing code expects that the user thread blocks on vsync (by either delaying the render call, or by making a call to mpv_render_context_report_swap() at vsync time).</summary>
     BlockVSync = 8,
@@ -177,7 +177,7 @@ public enum MpvRenderParamType
     FlipY = 4,
     /// <summary>Control surface depth. Valid for mpv_render_context_render(). Type: int* This implies the depth of the surface passed to the render function in bits per channel. If omitted or set to 0, the renderer will assume 8. Typically used to control dithering.</summary>
     Depth = 5,
-    /// <summary>ICC profile blob. Valid for mpv_render_context_set_parameter(). Type: mpv_byte_array* Set an ICC profile for use with the &quot;icc-profile-auto&quot; option. (If the option is not enabled, the ICC data will not be used.)</summary>
+    /// <summary>ICC profile blob. Valid for mpv_render_context_set_parameter(). Type: mpv_byte_array* Set an ICC profile for use with the "icc-profile-auto" option. (If the option is not enabled, the ICC data will not be used.)</summary>
     IccProfile = 6,
     /// <summary>Ambient light in lux. Valid for mpv_render_context_set_parameter(). Type: int* This can be used for automatic gamma correction.</summary>
     AmbientLight = 7,
@@ -201,7 +201,7 @@ public enum MpvRenderParamType
     DrmDisplayV2 = 16,
     /// <summary>MPV_RENDER_API_TYPE_SW only: rendering target surface size, mandatory. Valid for MPV_RENDER_API_TYPE_SW & mpv_render_context_render(). Type: int[2] (e.g.: int s[2] = {w, h}; param.data = s[0];)</summary>
     SwSize = 17,
-    /// <summary>MPV_RENDER_API_TYPE_SW only: rendering target surface pixel format, mandatory. Valid for MPV_RENDER_API_TYPE_SW & mpv_render_context_render(). Type: char* (e.g.: char *f = &quot;rgb0&quot;; param.data = f;)</summary>
+    /// <summary>MPV_RENDER_API_TYPE_SW only: rendering target surface pixel format, mandatory. Valid for MPV_RENDER_API_TYPE_SW & mpv_render_context_render(). Type: char* (e.g.: char *f = "rgb0"; param.data = f;)</summary>
     SwFormat = 18,
     /// <summary>MPV_RENDER_API_TYPE_SW only: rendering target surface bytes per line, mandatory. Valid for MPV_RENDER_API_TYPE_SW & mpv_render_context_render(). Type: size_t*</summary>
     SwStride = 19,

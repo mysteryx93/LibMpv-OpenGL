@@ -2,7 +2,6 @@
 using Android.App;
 using Android.Content.PM;
 using Avalonia.Android;
-using HanumanInstitute.LibMpv.Api;
 
 namespace Sample.LibMpv.Avalonia.Android;
 

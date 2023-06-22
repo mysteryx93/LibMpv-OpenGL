@@ -22,6 +22,7 @@ bld/
 .vs/
 .vscode/
 .idea/
+_*/
 
 # MSTest test Results
 [Tt]est[Rr]esult*/
