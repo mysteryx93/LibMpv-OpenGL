@@ -23,18 +23,19 @@ public class MainViewModel : ReactiveObject
     public async void Play()
     {
         Stop();
-        await Mpv.CommandAsync(null, "loadfile", MediaUrl, "replace");
+        await Mpv.LoadFile(MediaUrl).InvokeAsync();
+        // await Mpv.CommandAsync(null, "loadfile", MediaUrl, "replace");
     }
 
     public void Pause() => Pause(null);
 
-    public async void Pause(bool? value)
+    public void Pause(bool? value)
     {
-        value ??= !Mpv.GetPropertyFlag("pause");
-        Mpv.SetPropertyFlag("pause", value.Value);
+        value ??= !Mpv.Pause.Get()!;
+        Mpv.Pause.Set(value.Value);
     }
 
-    public void Stop() => Mpv.Command("stop");
+    public void Stop() => Mpv.Stop().Invoke();
 
     public void Software() => Renderer = VideoRenderer.Software;
     public void OpenGl() => Renderer = VideoRenderer.OpenGl;

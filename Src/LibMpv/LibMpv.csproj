@@ -11,35 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ConfigureAwait.Fody" Version="3.3.2" />
     <PackageReference Include="HanumanInstitute.Validators" Version="1.2.2" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="Interface\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Remove="Interface\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <TransformFile Remove="Interface\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <AndroidLibrary Remove="Interface\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <AndroidNativeLibrary Remove="Interface\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <JavaSourceJar Remove="Interface\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="Interface\**" />
-  </ItemGroup>
-
 </Project>

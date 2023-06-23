@@ -3,9 +3,9 @@ using HanumanInstitute.LibMpv;
 
 namespace Sample.LibMpv.Avalonia.Android.ViewModels;
 
-public class MainViewModel 
+public class MainViewModel
 {
-    public MpvContext Context { get; } = new MpvContext();
+    public MpvContext Context { get; } = default!;
 
     public MainViewModel()
     {
@@ -25,8 +25,9 @@ public class MainViewModel
 
     public void Play()
     {
-        Context.Command("loadfile", "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4", "replace");
-        Context.SetPropertyFlag("pause", false);
+        Context.LoadFile("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
+        // Context.RunCommand("loadfile", "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4", "replace");
+        Context.Pause.Set(false);
     }
 
     public void Stop()

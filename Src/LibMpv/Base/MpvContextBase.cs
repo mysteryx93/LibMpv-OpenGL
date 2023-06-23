@@ -3,12 +3,12 @@ using HanumanInstitute.LibMpv.Core;
 
 namespace HanumanInstitute.LibMpv;
 
-public unsafe partial class MpvContext : IDisposable
+public unsafe partial class MpvContextBase : IDisposable
 {
     private bool _disposed;
     private readonly IEventLoop _eventLoop;
     protected MpvHandle* Ctx => _ctx == null ? InitCtx() :
-        !_disposed ? _ctx : throw new ObjectDisposedException(nameof(MpvContext));
+        !_disposed ? _ctx : throw new ObjectDisposedException(nameof(MpvContextBase));
     private MpvHandle* _ctx;
     private MpvHandle* InitCtx()
     {
@@ -20,11 +20,11 @@ public unsafe partial class MpvContext : IDisposable
         return _ctx;
     }
     
-    public MpvContext() : this(MpvEventLoop.Default)
+    public MpvContextBase() : this(MpvEventLoop.Default)
     {
     }
 
-    public MpvContext(MpvEventLoop mpvEventLoop)
+    public MpvContextBase(MpvEventLoop mpvEventLoop)
     {
 #if ANDROID
         InitAndroid.InitJvm();
@@ -42,7 +42,7 @@ public unsafe partial class MpvContext : IDisposable
         _eventLoop.Start();
     }
 
-    ~MpvContext()
+    ~MpvContextBase()
     {
         Dispose(false);
     }

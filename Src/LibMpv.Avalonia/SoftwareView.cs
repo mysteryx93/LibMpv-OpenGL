@@ -13,9 +13,9 @@ public class SoftwareView : Control, IVideoView
     private WriteableBitmap? _renderTarget;
 
     // MpvContext property
-    public static readonly DirectProperty<SoftwareView, MpvContext?> MpvContextProperty = AvaloniaProperty.RegisterDirect<SoftwareView, MpvContext?>(
+    public static readonly DirectProperty<SoftwareView, MpvContext> MpvContextProperty = AvaloniaProperty.RegisterDirect<SoftwareView, MpvContext>(
         nameof(MpvContext), o => o.MpvContext, defaultBindingMode: BindingMode.OneWayToSource);
-    public MpvContext? MpvContext { get; } = new();
+    public MpvContext MpvContext { get; } = new();
 
     public SoftwareView()
     {
@@ -39,7 +39,12 @@ public class SoftwareView : Control, IVideoView
 
         using (var lockedBitmap = this._renderTarget.Lock())
         {
-            MpvContext.SoftwareRender(lockedBitmap.Size.Width, lockedBitmap.Size.Height, lockedBitmap.Address, "bgra");
+#if ANDROID
+            var pix = "rgba";
+#else
+            var pix = "bgra";
+#endif
+            MpvContext.SoftwareRender(lockedBitmap.Size.Width, lockedBitmap.Size.Height, lockedBitmap.Address, pix);
         }
         context.DrawImage(this._renderTarget, new Rect(0, 0, _renderTarget.PixelSize.Width, _renderTarget.PixelSize.Height));
     }

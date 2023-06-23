@@ -14,16 +14,16 @@ public class SoftwareVideoView: UserControl
 {
     WriteableBitmap renderTarget;
 
-    private MpvContext? _mpvContext = null;
+    private MpvContextBase? _mpvContext = null;
 
-    public static readonly DirectProperty<SoftwareVideoView, MpvContext?> MpvContextProperty =
-           AvaloniaProperty.RegisterDirect<SoftwareVideoView, MpvContext?>(
+    public static readonly DirectProperty<SoftwareVideoView, MpvContextBase?> MpvContextProperty =
+           AvaloniaProperty.RegisterDirect<SoftwareVideoView, MpvContextBase?>(
                nameof(MpvContext),
                o => o.MpvContext,
                (o, v) => o.MpvContext = v,
                defaultBindingMode: BindingMode.TwoWay);
 
-    public MpvContext? MpvContext
+    public MpvContextBase? MpvContext
     {
         get { return _mpvContext; }
         set

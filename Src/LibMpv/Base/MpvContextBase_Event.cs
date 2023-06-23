@@ -3,7 +3,7 @@ using HanumanInstitute.LibMpv.Core;
 
 namespace HanumanInstitute.LibMpv;
 
-public unsafe partial class MpvContext
+public unsafe partial class MpvContextBase
 {
     private Dictionary<MpvEventId, MpvEventHandler> _eventHandlers;
     private delegate void MpvEventHandler(MpvEvent e);
@@ -16,7 +16,7 @@ public unsafe partial class MpvContext
     public event EventHandler? Tick;
     public event EventHandler? VideoReconfig;
     public event EventHandler? AudioReconfig;
-    public event EventHandler? Seek;
+    public event EventHandler? SeekRaised;
     public event EventHandler? PlaybackRestart;
     public event EventHandler? QueueOverflow;
     public event EventHandler<MpvPropertyEventArgs>? PropertyChanged;
@@ -100,7 +100,7 @@ public unsafe partial class MpvContext
 
     private void SeekHandler(MpvEvent e)
     {
-        Seek?.Invoke(this, EventArgs.Empty);
+        SeekRaised?.Invoke(this, EventArgs.Empty);
     }
 
     private void AudioReconfigHandler(MpvEvent e)

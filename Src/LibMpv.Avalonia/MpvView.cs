@@ -1,4 +1,5 @@
-﻿using Avalonia;
+﻿using System.Runtime.InteropServices;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
 
@@ -72,7 +73,8 @@ public class MpvView : Control
 #if ANDROID
         return new NativeView();
 #endif
-        return new OpenGlView();
+        return RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? 
+            new NativeView() : new OpenGlView();
     }
 
     private void StopRenderer()

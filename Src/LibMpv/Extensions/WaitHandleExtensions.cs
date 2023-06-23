@@ -21,7 +21,7 @@ internal static class WaitHandleExtensions
                     state => ((TaskCompletionSource<bool>)state).TrySetCanceled(),
                     tcs);
             }
-            return await tcs.Task.ConfigureAwait(false);
+            return await tcs.Task;
         }
         finally
         {

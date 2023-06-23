@@ -13,9 +13,9 @@ public class OpenGlView : OpenGlControlBase, IVideoView
     private GetProcAddress? _getProcAddress;
 
     // MpvContext property
-    public static readonly DirectProperty<OpenGlView, MpvContext?> MpvContextProperty = AvaloniaProperty.RegisterDirect<OpenGlView, MpvContext?>(
+    public static readonly DirectProperty<OpenGlView, MpvContext> MpvContextProperty = AvaloniaProperty.RegisterDirect<OpenGlView, MpvContext>(
         nameof(MpvContext), o => o.MpvContext, defaultBindingMode: BindingMode.OneWayToSource);
-    public MpvContext? MpvContext { get; } = new();
+    public MpvContext MpvContext { get; } = new();
 
     protected override void OnOpenGlRender(GlInterface gl, int fbo)
     {

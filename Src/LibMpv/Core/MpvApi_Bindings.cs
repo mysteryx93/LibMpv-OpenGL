@@ -9,7 +9,7 @@ public static unsafe partial class MpvApi
 
     private static T GetFunction<T>(string functionName)
         where T : Delegate =>
-        FunctionResolver.GetFunctionDelegate<T>(MpvApi.DllName, functionName) ?? throw new NotSupportedException();
+        FunctionResolver.GetFunctionDelegate<T>(DllName, functionName) ?? throw new NotSupportedException();
     
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]

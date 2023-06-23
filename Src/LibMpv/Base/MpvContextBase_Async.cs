@@ -7,7 +7,7 @@ namespace HanumanInstitute.LibMpv;
 /// <summary>
 /// Handles basic communication protocols with MPV via IPC named pipe.
 /// </summary>
-public partial class MpvContext
+public partial class MpvContextBase
 {
     private ulong _requestId = 1;
     private readonly List<MpvEventArgs> _responses = new();
@@ -133,20 +133,8 @@ public partial class MpvContext
         }
     }
 
-    /// <summary>
-    /// Sends specified message to MPV and returns the response as string.
-    /// </summary>
-    /// <param name="options">Additional command options.</param>
-    /// <param name="cmd">The command values to send.</param>
-    /// <returns>The server's response to the command.</returns>
-    /// <exception cref="InvalidOperationException">The response contained an error and ThrowOnError is True.</exception>
-    /// <exception cref="TimeoutException">A response from MPV was not received before timeout.</exception>
-    /// <exception cref="FormatException">The data returned by the server could not be parsed.</exception>
-    /// <exception cref="ObjectDisposedException">The underlying connection was disposed.</exception>
-    public async Task<MpvNode?> CommandAsync(ApiCommandOptions? options, params string[] cmd)
+    protected string[] AddCommandPrefixes(ApiCommandOptions? options, object?[] cmd)
     {
-        cmd.CheckNotNullOrEmpty(nameof(cmd));
-
         // Append prefixes and remove null values at the end.
         var cmdLength = cmd.Length;
         var prefixes = options != null ? options.GetPrefixes() : DefaultOptions.GetPrefixes();
@@ -165,25 +153,43 @@ public partial class MpvContext
         if (cmdLength != cmd.Length || prefixCount > 0)
         {
             var cmd2 = cmd;
-            cmd = new string[cmdLength + prefixCount];
+            cmd = new object[cmdLength + prefixCount];
             for (var i = 0; i < prefixCount; i++)
             {
                 cmd[i] = prefixes![i];
             }
             Array.Copy(cmd2, 0, cmd, prefixCount, cmdLength);
         }
+        return cmd.Select(x => x.ToStringInvariant()).ToArray();
+    }
+
+    /// <summary>
+    /// Sends specified message to MPV and returns the response as string.
+    /// </summary>
+    /// <param name="options">Additional command options.</param>
+    /// <param name="cmd">The command values to send.</param>
+    /// <returns>The server's response to the command.</returns>
+    /// <exception cref="InvalidOperationException">The response contained an error and ThrowOnError is True.</exception>
+    /// <exception cref="TimeoutException">A response from MPV was not received before timeout.</exception>
+    /// <exception cref="FormatException">The data returned by the server could not be parsed.</exception>
+    /// <exception cref="ObjectDisposedException">The underlying connection was disposed.</exception>
+    public async Task<object?> CommandAsync(ApiCommandOptions? options, params object?[] args)
+    {
+        args.CheckNotNullOrEmpty(nameof(args));
+
+        var cmd = AddCommandPrefixes(options, args);
         
         // Prepare the request.
         var requestId = GetWaitForResponseOption(options) ? _requestId++ : 0;
 
         // Send the request.
-        CommandAsync(requestId, cmd);
+        RunCommandAsync(requestId, cmd);
         LogAppend(cmd);
 
         if (requestId > 0)
         {
-            var result = await WaitForResponseAsync(requestId, cmd[0] ?? string.Empty, options).ConfigureAwait(false) as MpvCommandReplyEventArgs;
-            return result?.Data;
+            var result = await WaitForResponseAsync(requestId, cmd[0] ?? string.Empty, options) as MpvCommandReplyEventArgs;
+            return result?.Data.Value;
         }
         return null;
     }
@@ -191,14 +197,15 @@ public partial class MpvContext
     /// <summary>
     /// Sends specified message to MPV and returns the response.
     /// </summary>
-    /// <param name="options">Additional command options.</param>
     /// <param name="name">The property to get.</param>
+    /// <param name="format"></param>
+    /// <param name="options">Additional command options.</param>
     /// <returns>The server's response to the command.</returns>
     /// <exception cref="InvalidOperationException">The response contained an error and ThrowOnError is True.</exception>
     /// <exception cref="TimeoutException">A response from MPV was not received before timeout.</exception>
     /// <exception cref="FormatException">The data returned by the server could not be parsed.</exception>
     /// <exception cref="ObjectDisposedException">The underlying connection was disposed.</exception>
-    public async Task<object?> GetPropertyAsync(ApiAsyncOptions? options, string name, MpvFormat format)
+    public async Task<object?> GetPropertyAsync(string name, MpvFormat format, ApiAsyncOptions? options)
     {
         // Prepare the request.
         var requestId = GetWaitForResponseOption(options) ? _requestId++ : 0;
@@ -209,36 +216,71 @@ public partial class MpvContext
 
         if (requestId > 0)
         {
-            var result = await WaitForResponseAsync(requestId, name, options).ConfigureAwait(false) as MpvPropertyEventArgs;
+            var result = await WaitForResponseAsync(requestId, name, options) as MpvPropertyEventArgs;
             return result?.Value;
         }
         return null;
     }
+
+    /// <summary>
+    /// Sends specified message to MPV and returns the response.
+    /// </summary>
+    /// <param name="name">The property to get.</param>
+    /// <param name="options">Additional command options.</param>
+    /// <returns>The server's response to the command.</returns>
+    /// <exception cref="InvalidOperationException">The response contained an error and ThrowOnError is True.</exception>
+    /// <exception cref="TimeoutException">A response from MPV was not received before timeout.</exception>
+    /// <exception cref="FormatException">The data returned by the server could not be parsed.</exception>
+    /// <exception cref="ObjectDisposedException">The underlying connection was disposed.</exception>
+    public async Task<T?> GetPropertyAsync<T>(string name, ApiAsyncOptions? options)
+    {
+        // Prepare the request.
+        var requestId = GetWaitForResponseOption(options) ? _requestId++ : 0;
+
+        // Send the request.
+        var format = GetMpvFormat<T?>();
+        GetPropertyAsync(requestId, name, format);
+        LogAppend(name);
+
+        if (requestId > 0)
+        {
+            var result = await WaitForResponseAsync(requestId, name, options) as MpvPropertyEventArgs;
+            return (T?)result?.Value;
+        }
+        return default;
+    }
     
-    // /// <summary>
-    // /// Sends specified message to MPV and returns the response.
-    // /// </summary>
-    // /// <param name="options">Additional command options.</param>
-    // /// <param name="name">The property to get.</param>
-    // /// <returns>The server's response to the command.</returns>
-    // /// <exception cref="InvalidOperationException">The response contained an error and ThrowOnError is True.</exception>
-    // /// <exception cref="TimeoutException">A response from MPV was not received before timeout.</exception>
-    // /// <exception cref="FormatException">The data returned by the server could not be parsed.</exception>
-    // /// <exception cref="ObjectDisposedException">The underlying connection was disposed.</exception>
-    // public async Task SetPropertyAsync(ApiAsyncOptions? options, string name, MpvFormat format, void* value)
-    // {
-    //     // Prepare the request.
-    //     var requestId = GetWaitForResponseOption(options) ? _requestId++ : 0;
-    //
-    //     // Send the request.
-    //     SetPropertyAsync(requestId, name, format, value);
-    //     LogAppend(name);
-    //
-    //     if (requestId > 0)
-    //     {
-    //         await WaitForResponseAsync(requestId, name, options).ConfigureAwait(false);
-    //     }
-    // }
+    public async Task SetPropertyAsync<T>(string name, T newValue, ApiCommandOptions? options = null)
+    {
+        var requestId = GetWaitForResponseOption(options) ? _requestId++ : 0;
+        unsafe
+        {
+            var type = typeof(T);
+            switch (type)
+            {
+                case not null when type == typeof(long?) || type == typeof(int?):
+                    var vLong = Convert.ToInt64(newValue);
+                    MpvApi.SetPropertyAsync(Ctx, requestId, name, MpvFormat.Int64, &vLong).CheckCode();
+                    break;
+                case not null when type == typeof(double?) || type == typeof(float?):
+                    var vDouble = Convert.ToDouble(newValue);
+                    MpvApi.SetPropertyAsync(Ctx, requestId, name, MpvFormat.Double, &vDouble).CheckCode();
+                    break;
+                case not null when type == typeof(bool?):
+                    var vBool = newValue as bool? == true ? 1 : 0;
+                    MpvApi.SetPropertyAsync(Ctx, requestId, name, MpvFormat.Flag, &vBool).CheckCode();
+                    break;
+                case not null when type == typeof(string):
+                    var vString = Utf8Marshaler.FromManaged(Encoding.UTF8, newValue.ToStringInvariant());
+                    MpvApi.SetPropertyAsync(Ctx, requestId, name, MpvFormat.String, &vString).CheckCode();
+                    break;
+            }
+        }
+        if (requestId > 0)
+        {
+            await WaitForResponseAsync(requestId, name, options);
+        }
+    }
 
     /// <summary>
     /// Waits for a response with specified request ID.
@@ -265,7 +307,7 @@ public partial class MpvContext
 
             // Wait until any message is received.
             _waitResponse.Reset();
-            await _waitResponse.WaitOneAsync(timeout, cancelToken).ConfigureAwait(false);
+            await _waitResponse.WaitOneAsync(timeout, cancelToken);
             response = FindResponse(requestId);
         }
 

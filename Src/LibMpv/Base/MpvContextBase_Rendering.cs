@@ -1,11 +1,12 @@
 ﻿using HanumanInstitute.LibMpv.Core;
+using MpvApi = HanumanInstitute.LibMpv.Core.MpvApi;
 
 namespace HanumanInstitute.LibMpv;
 
 public delegate nint GetProcAddress(string name);
 public delegate void UpdateCallback();
 
-public unsafe partial class MpvContext
+public unsafe partial class MpvContextBase
 {
     private MpvRenderContext* _renderContext;
     private MpvOpenglInitParamsGetProcAddress _getProcAddress;
@@ -189,7 +190,7 @@ public unsafe partial class MpvContext
 
     public void StopRendering()
     {
-        Command("stop");
+        RunCommand(null, "stop");
         if (_renderContext != null)
         {
             RenderContextFree();

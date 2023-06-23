@@ -4,7 +4,7 @@ using HanumanInstitute.LibMpv.Core;
 
 namespace HanumanInstitute.LibMpv;
 
-public unsafe partial class MpvContext
+public unsafe partial class MpvContextBase
 {
     /// <summary>Signal to all async requests with the matching ID to abort.</summary>
     /// <param name="requestId">ID of the request to be aborted.</param>
@@ -23,28 +23,31 @@ public unsafe partial class MpvContext
 
     /// <summary>Send a command to the player. Commands are the same as those used in input.conf, except that this function takes parameters in a pre-split form.</summary>
     /// <param name="args">List of strings. Usually, the first item is the command, and the following items are arguments.</param>
-    public void Command(params string[] args)
+    public void RunCommand(ApiCommandOptions? options, params object?[] args)
     {
+        var cmd = AddCommandPrefixes(options, args);
         using var helper = new MarshalHelper();
-        var val = (byte**)helper.CStringArrayForManagedUtf8StringArray(args);
+        var val = (byte**)helper.CStringArrayForManagedUtf8StringArray(cmd);
         MpvApi.Command(Ctx, val).CheckCode();
     }
 
     /// <summary>Send a command to the player. Commands are the same as those used in input.conf, except that this function takes parameters in a pre-split form.</summary>
     /// <param name="args">List of strings. Usually, the first item is the command, and the following items are arguments.</param>
-    public MpvNode CommandRet(params string[] args)
+    public object RunCommandRet(ApiCommandOptions? options, params object?[] args)
     {
+        var cmd = AddCommandPrefixes(options, args);
+        cmd = cmd.Select(x => x.ToStringInvariant()).ToArray();
         using var helper = new MarshalHelper();
-        var val = (byte**)helper.CStringArrayForManagedUtf8StringArray(args);
+        var val = (byte**)helper.CStringArrayForManagedUtf8StringArray(cmd);
         var ret = new MpvNode();
         MpvApi.CommandRet(Ctx, val, &ret).CheckCode();
-        return ret;
+        return ret.Value;
     }
 
     /// <summary>Same as mpv_command, but run the command asynchronously.</summary>
     /// <param name="requestId">the value mpv_event.requestId of the reply will be set to (see section about asynchronous calls)</param>
     /// <param name="args">List of strings. Usually, the first item is the command, and the following items are arguments.</param>
-    public void CommandAsync(ulong requestId, string[] args)
+    public void RunCommandAsync(ulong requestId, string[] args)
     {
         using var helper = new MarshalHelper();
         var val = (byte**)helper.CStringArrayForManagedUtf8StringArray(args);
@@ -55,7 +58,7 @@ public unsafe partial class MpvContext
     /// <param name="args">mpv_node with format set to one of the values documented above (see there for details)</param>
     /// <param name="returnData">Whether to return data from the command. If true and the command succeeds, it must be freed with MpvFreeNodeContents.</param>
     /// <returns>Filled if returnData is true and command succeeds. You must call MpvFreeNodeContents to free it.</returns>
-    public MpvNode? CommandNode(MpvNode args, bool returnData = false)
+    public MpvNode? RunCommandNode(MpvNode args, bool returnData = false)
     {
         if (returnData)
         {
@@ -70,10 +73,10 @@ public unsafe partial class MpvContext
     /// <summary>Same as mpv_command_node(), but run it asynchronously. Basically, this function is to mpv_command_node() what mpv_command_async() is to mpv_command().</summary>
     /// <param name="requestId">the value mpv_event.requestId of the reply will be set to (see section about asynchronous calls)</param>
     /// <param name="args">as in mpv_command_node()</param>
-    public void CommandNodeAsync(ulong requestId, MpvNode args) => MpvApi.CommandNodeAsync(Ctx, requestId, &args).CheckCode();
+    public void RunCommandNodeAsync(ulong requestId, MpvNode args) => MpvApi.CommandNodeAsync(Ctx, requestId, &args).CheckCode();
     
     /// <summary>Same as mpv_command, but use input.conf parsing for splitting arguments. This is slightly simpler, but also more error prone, since arguments may need quoting/escaping.</summary>
-    public int CommandString(string args) => MpvApi.CommandString(Ctx, args).CheckCode();
+    public int RunCommandString(string args) => MpvApi.CommandString(Ctx, args).CheckCode();
     
     /// <summary>Create a new client handle connected to the same player core as Ctx. This context has its own event queue, its own mpv_request_event() state, its own mpv_request_log_messages() state, its own set of observed properties, and its own state for asynchronous operations. Otherwise, everything is shared.</summary>
     /// <param name="name">The client name. This will be returned by mpv_client_name(). If the name is already in use, or contains non-alphanumeric characters (other than '_'), the name is modified to fit. If NULL, an arbitrary name is automatically chosen.</param>
@@ -115,7 +118,48 @@ public unsafe partial class MpvContext
     /// <param name="data">Pointer to the variable holding the option value. On success, the variable will be set to a copy of the option value. For formats that require dynamic memory allocation, you can free the value with mpv_free() (strings) or mpv_free_node_contents() (MPV_FORMAT_NODE).</param>
     /// <returns>error code</returns>
     public int GetProperty(string name, MpvFormat format, void* data) => MpvApi.GetProperty(Ctx, name, format, data);
-    
+
+    /// <summary>Read the value of the given property.</summary>
+    /// <param name="name">The property name.</param>
+    /// <typeparam name="T">The data type of the property to read.</typeparam>
+    public T GetProperty<T>(string name)
+    {
+        var format = GetMpvFormat<T>();
+        switch (format)
+        {
+            case MpvFormat.Int64:
+                var vLong = 0L;
+                MpvApi.GetProperty(Ctx, name, MpvFormat.Int64, &vLong).CheckCode();
+                return (T)(object)vLong;
+            case MpvFormat.Double:
+                var vDouble = 0.0;
+                MpvApi.GetProperty(Ctx, name, MpvFormat.Double, &vDouble).CheckCode();
+                return (T)(object)vDouble;
+            case MpvFormat.Flag:
+                var vBool = 0;
+                MpvApi.GetProperty(Ctx, name, MpvFormat.Flag, &vBool).CheckCode();
+                return (T)(object)(vBool == 1);
+            case MpvFormat.String:
+            case MpvFormat.OsdString:
+                var value = MpvApi.GetPropertyString(Ctx, name);
+                return (T)(object)(value != null ? Utf8Marshaler.FromNative(Encoding.UTF8, value) : null)!;
+        }
+        return default!;
+    }
+
+    protected MpvFormat GetMpvFormat<T>()
+    {
+        var type = typeof(T);
+        return type switch
+        {
+            _ when type == typeof(long) || type == typeof(int) || type == typeof(long?) || type == typeof(int?) => MpvFormat.Int64,
+            _ when type == typeof(double) || type == typeof(float) || type == typeof(double?) || type == typeof(float?) => MpvFormat.Double,
+            _ when type == typeof(bool) || type == typeof(bool?) => MpvFormat.Flag,
+            _ when type == typeof(string) => MpvFormat.String,
+            _ => MpvFormat.None
+        };
+    }
+
     /// <summary>Return the property as "OSD" formatted string. This is the same as mpv_get_property_string, but using MPV_FORMAT_OSD_STRING.</summary>
     /// <returns>Property value, or NULL if the property can't be retrieved. Free the string with mpv_free().</returns>
     public string? GetPropertyOsdString(string name)
@@ -131,27 +175,6 @@ public unsafe partial class MpvContext
     {
         var value = MpvApi.GetPropertyString(Ctx, name);
         return value != null ? Utf8Marshaler.FromNative(Encoding.UTF8, value) : null;
-    }
-
-    public bool GetPropertyFlag(string name)
-    {
-        var value = 0;
-        MpvApi.GetProperty(Ctx, name, MpvFormat.Flag, &value).CheckCode();
-        return value == 1;
-    }
-    
-    public long GetPropertyLong(string name)
-    {
-        var value = 0L;
-        MpvApi.GetProperty(Ctx, name, MpvFormat.Int64, &value).CheckCode();
-        return value;
-    }
-    
-    public double GetPropertyDouble(string name)
-    {
-        var value = 0.0;
-        MpvApi.GetProperty(Ctx, name, MpvFormat.Double, &value).CheckCode();
-        return value;
     }
     
     /// <summary>Get a property asynchronously. You will receive the result of the operation as well as the property data with the MPV_EVENT_GET_PROPERTY_REPLY event. You should check the mpv_event.error field on the reply event.</summary>
@@ -261,6 +284,30 @@ public unsafe partial class MpvContext
     /// <param name="data">Option value. The value will be copied by the function. It will never be modified by the client API.</param>
     protected int SetPropertyAsync(ulong requestId, string name, MpvFormat format, void* data) => MpvApi.SetPropertyAsync(Ctx, requestId, name, format, data);
     
+    public void SetProperty<T>(string name, T newValue)
+    {
+        var format = GetMpvFormat<T>();
+        switch (format)
+        {
+            case MpvFormat.Int64:
+                var vLong = Convert.ToInt64(newValue);
+                MpvApi.SetProperty(Ctx, name, MpvFormat.Int64, &vLong).CheckCode();
+                break;
+            case MpvFormat.Double:
+                var vDouble = Convert.ToDouble(newValue);
+                MpvApi.SetProperty(Ctx, name, MpvFormat.Double, &vDouble).CheckCode();
+                break;
+            case MpvFormat.Flag:
+                var vBool = newValue as bool? == true ? 1 : 0;
+                MpvApi.SetProperty(Ctx, name, MpvFormat.Flag, &vBool).CheckCode();
+                break;
+            case MpvFormat.String:
+            case MpvFormat.OsdString:
+                MpvApi.SetPropertyString(Ctx, name, newValue.ToStringInvariant()).CheckCode();
+                break;
+        }
+    }
+
     /// <summary>Convenience function to set a property to a string value.</summary>
     public void SetPropertyString(string name, string newValue)
     {

@@ -16,7 +16,7 @@ public class NativeVideoView : NativeControlHost
 {
     public class MpvSurfaceView : SurfaceView, ISurfaceHolderCallback
     {
-        MpvContext? _mpvContext = null;
+        MpvContextBase? _mpvContext = null;
 
         private IntPtr _nativeHandle = IntPtr.Zero;
 
@@ -52,7 +52,7 @@ public class NativeVideoView : NativeControlHost
             }
         }
 
-        public void Attach(MpvContext mpvContext)
+        public void Attach(MpvContextBase mpvContext)
         {
             _mpvContext = mpvContext;
             if (NativeHandle != IntPtr.Zero )
@@ -69,17 +69,17 @@ public class NativeVideoView : NativeControlHost
 
     private MpvSurfaceView? _mpvSurfaceView = null;
     
-    private MpvContext? _mpvContext = null;
+    private MpvContextBase? _mpvContext = null;
 
-    public static readonly DirectProperty<NativeVideoView, MpvContext?> MpvContextProperty =
-           AvaloniaProperty.RegisterDirect<NativeVideoView, MpvContext?>(
+    public static readonly DirectProperty<NativeVideoView, MpvContextBase?> MpvContextProperty =
+           AvaloniaProperty.RegisterDirect<NativeVideoView, MpvContextBase?>(
                nameof(MpvContext),
                o => o.MpvContext,
                (o, v) => o.MpvContext = v,
                defaultBindingMode: BindingMode.TwoWay);
 
 
-    public MpvContext? MpvContext
+    public MpvContextBase? MpvContext
     {
         get { return _mpvContext; }
         set
