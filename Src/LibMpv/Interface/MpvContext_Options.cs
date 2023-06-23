@@ -1,4 +1,6 @@
-﻿namespace HanumanInstitute.LibMpv;
+﻿// ReSharper disable CommentTypo
+// ReSharper disable StringLiteralTypo
+namespace HanumanInstitute.LibMpv;
 
 public partial class MpvContext
 {
@@ -440,7 +442,7 @@ public partial class MpvContext
     /// <summary>
     /// Specify a list of video filters to apply to the video stream. See VIDEO FILTERS for details and descriptions of the available filters.
     /// </summary>
-    public MpvOptionList VideoFiters => new(this, "vf");
+    public MpvOptionList VideoFilters => new(this, "vf");
 
     /// <summary>
     /// Do not sleep when outputting video frames. Useful for benchmarks when used with --no-audio.
