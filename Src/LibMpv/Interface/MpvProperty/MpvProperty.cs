@@ -8,24 +8,18 @@ namespace HanumanInstitute.LibMpv;
 /// Represents a read-only MPV property.
 /// </summary>
 /// <typeparam name="TNull">The nullable return type of the property.</typeparam>
-public abstract class MpvProperty<TNull>
+/// <typeparam name="TRaw">The raw data type to be parsed from MPV. Usually the same.</typeparam>
+public abstract class MpvProperty<TNull, TRaw>
 {
     protected MpvContext Mpv { get; private set; }
-    protected MpvFormat Format { get; private set; }
+    protected MpvFormat Format { get; set; }
 
     public MpvProperty(MpvContext mpv, string name)
     {
         Mpv = mpv;
         PropertyName = name.CheckNotNullOrEmpty(nameof(name));
         var type = typeof(TNull);
-        Format = 1 switch
-        {
-             _ when type == typeof(long?) || type == typeof(int?) => MpvFormat.Int64,
-             _ when type == typeof(double?) || type == typeof(float?) => MpvFormat.Double,
-             _ when type == typeof(bool?) => MpvFormat.Flag,
-             _ when type == typeof(string) => MpvFormat.String,
-             _ => MpvFormat.None
-        };
+        Format = MpvFormatter.GetMpvFormat<TRaw>();
     }
 
     /// <summary>
@@ -40,41 +34,31 @@ public abstract class MpvProperty<TNull>
     /// <returns>The typed parsed value.</returns>
     /// <exception cref="FormatException">Value is not in a valid format.</exception>
     /// <exception cref="OverflowException">Value represents a number that is out of the range.</exception>
-    protected virtual TNull ParseValue(string? value) => ParseDefault(value);
-
-
-    public static TNull ParseDefault(string? value)
+    protected virtual TNull ParseValue(TRaw value)
     {
-        if (value == null) { return default!; }
-
-        if (typeof(TNull) == typeof(string))
+        var type = Nullable.GetUnderlyingType(typeof(TNull)) ?? typeof(TNull);
+        return (TNull)(1 switch
         {
-            var str = value.ToString();
-            if (str.Length >= 2 && str[0] == '"' && str[str.Length - 1] == '"')
+            _ when type == typeof(TRaw) => (object?)value!,
+            _ when type == typeof(string) => value.ToStringInvariant()!,
+            _ when value is string v => 1 switch
             {
-                str = str.Substring(1, str.Length - 2);
-            }
-            return (TNull)(object)str;
-        } 
-        if (typeof(TNull).IsValueType)
-        {
-            var type = Nullable.GetUnderlyingType(typeof(TNull)) ?? typeof(TNull);
-            return (TNull)Convert.ChangeType(value, type, CultureInfo.InvariantCulture);
-        }
-        else
-        {
-            var jsonOptions = new JsonSerializerOptions()
-            {
-                PropertyNamingPolicy = new MpvJsonNamingPolicy()
-            };
-            return (TNull)JsonSerializer.Deserialize<TNull>(value, jsonOptions)! ?? default!;
-        }
+                _ when string.IsNullOrEmpty(v) => default,
+                _ when type == typeof(int) => v.Parse<int>(),
+                _ when type == typeof(long) => v.Parse<long>(),
+                _ when type == typeof(bool) => v.Parse<bool>(),
+                _ when type == typeof(double) => v.Parse<double>(),
+                _ when type == typeof(float) => v.Parse<float>(),
+                _ => throw new FormatException("Custom parsing must be implemented.")
+            },
+            _ => throw new FormatException("Custom parsing must be implemented.")
+        })!;
     }
 
-    /// <summary>
-    /// Formats specified value to send into a MPV request.
-    /// </summary>
-    /// <param name="value">The value to format.</param>
-    /// <returns>The formatted value.</returns>
-    protected virtual string? FormatValue(TNull value) => value?.ToStringInvariant();
+    // /// <summary>
+    // /// Formats specified value to send into a MPV request.
+    // /// </summary>
+    // /// <param name="value">The value to format.</param>
+    // /// <returns>The formatted value.</returns>
+    // protected virtual TRaw? FormatValue(TNull value) => value?.ToStringInvariant();
 }

@@ -3,8 +3,11 @@
 /// <summary>
 /// Contains additional options for sending API commands.
 /// </summary>
-public class ApiCommandOptions : ApiAsyncOptions
+public class MpvCommandOptions : MpvAsyncOptions
 {
+    public MpvCommandOptions()
+    {}
+    
     /// <summary>
     /// When set, use the default behavior for this command. This is the default for input.conf commands. Some libmpv/scripting/IPC APIs do not use this as default, but use no-osd instead.
     /// </summary>

@@ -16,7 +16,7 @@ public class MpvOptionWithInf<T> : MpvOptionWith<T>
     /// <summary>
     /// Sets the option to 'inf'.
     /// </summary>
-    public Task SetInfAsync(ApiCommandOptions? options = null) => SetValueAsync("inf", options);
+    public Task SetInfAsync(MpvAsyncOptions? options = null) => SetValueAsync("inf", options);
 
     /// <summary>
     /// Gets whether the option is 'inf'.
@@ -26,5 +26,5 @@ public class MpvOptionWithInf<T> : MpvOptionWith<T>
     /// <summary>
     /// Gets whether the option is 'inf'.
     /// </summary>
-    public Task<bool> GetInfAsync(ApiCommandOptions? options = null) => GetValueAsync(new[] { "inf", "false" }, options);
+    public Task<bool> GetInfAsync(MpvAsyncOptions? options = null) => GetValueAsync(new[] { "inf", "false" }, options);
 }

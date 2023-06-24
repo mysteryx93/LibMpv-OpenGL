@@ -14,13 +14,13 @@ public class MarshalHelper : IDisposable
     public static string PtrToStringUtf8OrEmpty(IntPtr ptr)
     {
         if (ptr == IntPtr.Zero) return String.Empty;
-        return Utf8Marshaler.FromNative(Encoding.UTF8, ptr)!;
+        return Utf8Marshaler.FromNative(ptr, Encoding.UTF8)!;
     }
 
     public static string? PtrToStringUtf8OrNull(IntPtr ptr)
     {
         if (ptr == IntPtr.Zero) return null;
-        return Utf8Marshaler.FromNative(Encoding.UTF8, ptr);
+        return Utf8Marshaler.FromNative(ptr, Encoding.UTF8);
     }
 
     struct AllocBlock

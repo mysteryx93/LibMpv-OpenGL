@@ -16,7 +16,7 @@ public class MpvOptionWithDefault<T> : MpvOptionWith<T>
     /// <summary>
     /// Sets the option to 'default'.
     /// </summary>
-    public Task SetDefaultAsync(ApiCommandOptions? options = null) => SetValueAsync("default", options);
+    public Task SetDefaultAsync(MpvAsyncOptions? options = null) => SetValueAsync("default", options);
 
     /// <summary>
     /// Gets whether the option is 'default'.
@@ -26,5 +26,5 @@ public class MpvOptionWithDefault<T> : MpvOptionWith<T>
     /// <summary>
     /// Gets whether the option is 'default'.
     /// </summary>
-    public Task<bool> GetDefaultAsync(ApiCommandOptions? options = null) => GetValueAsync("default", options);
+    public Task<bool> GetDefaultAsync(MpvAsyncOptions? options = null) => GetValueAsync("default", options);
 }

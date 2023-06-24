@@ -21,7 +21,7 @@ public partial class MpvContextBase
     /// <summary>
     /// Gets or sets the default options for all requests passing through this controller.
     /// </summary>
-    public ApiCommandOptions DefaultOptions { get; } = new ApiCommandOptions()
+    public MpvCommandOptions DefaultOptions { get; } = new MpvCommandOptions()
     {
         WaitForResponse = DefaultWaitForResponse,
         ResponseTimeout = DefaultResponseTimeout,
@@ -32,19 +32,19 @@ public partial class MpvContextBase
     /// Gets whether to wait for response, first taking the value in options, if null taking the value in DefaultOptions, and if null taking a default value.
     /// </summary>
     /// <param name="options">Optional command options, may be null.</param>
-    public bool GetWaitForResponseOption(ApiAsyncOptions? options) => options?.WaitForResponse ?? DefaultOptions.WaitForResponse ?? DefaultWaitForResponse;
+    public bool GetWaitForResponseOption(MpvAsyncOptions? options) => options?.WaitForResponse ?? DefaultOptions.WaitForResponse ?? DefaultWaitForResponse;
 
     /// <summary>
     /// Gets the response timeout, first taking the value in options, if null taking the value in DefaultOptions, and if null taking a default value.
     /// </summary>
     /// <param name="options">Optional command options, may be null.</param>
-    public int GetResponseTimeoutOption(ApiAsyncOptions? options) => options?.ResponseTimeout ?? DefaultOptions.ResponseTimeout ?? DefaultResponseTimeout;
+    public int GetResponseTimeoutOption(MpvAsyncOptions? options) => options?.ResponseTimeout ?? DefaultOptions.ResponseTimeout ?? DefaultResponseTimeout;
 
     /// <summary>
     /// Gets whether to throw an exception on error, first taking the value in options, if null taking the value in DefaultOptions, and if null taking a default value.
     /// </summary>
     /// <param name="options">Optional command options, may be null.</param>
-    public bool GetThrowOnErrorOption(ApiAsyncOptions? options) => options?.ThrowOnError ?? DefaultOptions.ThrowOnError ?? DefaultThrowOnError;
+    public bool GetThrowOnErrorOption(MpvAsyncOptions? options) => options?.ThrowOnError ?? DefaultOptions.ThrowOnError ?? DefaultThrowOnError;
 
     /// <summary>
     /// Gets a text log of communication data from both directions.
@@ -84,7 +84,6 @@ public partial class MpvContextBase
         
         if (e.RequestId > 0)
         {
-            LogAppend(e.Data);
             // Add to list of responses to be retrieved by QueryId.
             lock (_responses)
             {
@@ -104,7 +103,6 @@ public partial class MpvContextBase
         
         if (e.RequestId > 0)
         {
-            LogAppend($"{e.Name}: {e.Value}");
             // Add to list of responses to be retrieved by QueryId.
             lock (_responses)
             {
@@ -133,7 +131,7 @@ public partial class MpvContextBase
         }
     }
 
-    protected string[] AddCommandPrefixes(ApiCommandOptions? options, object?[] cmd)
+    protected string[] AddCommandPrefixes(MpvCommandOptions? options, object?[] cmd)
     {
         // Append prefixes and remove null values at the end.
         var cmdLength = cmd.Length;
@@ -173,7 +171,7 @@ public partial class MpvContextBase
     /// <exception cref="TimeoutException">A response from MPV was not received before timeout.</exception>
     /// <exception cref="FormatException">The data returned by the server could not be parsed.</exception>
     /// <exception cref="ObjectDisposedException">The underlying connection was disposed.</exception>
-    public async Task<object?> CommandAsync(ApiCommandOptions? options, params object?[] args)
+    public async Task<T?> CommandAsync<T>(MpvCommandOptions? options, params object?[] args)
     {
         args.CheckNotNullOrEmpty(nameof(args));
 
@@ -184,42 +182,13 @@ public partial class MpvContextBase
 
         // Send the request.
         RunCommandAsync(requestId, cmd);
-        LogAppend(cmd);
 
-        if (requestId > 0)
+        if (requestId > 0 && 
+            await WaitForResponseAsync(requestId, cmd[0] ?? string.Empty, options) is MpvCommandReplyEventArgs result)
         {
-            var result = await WaitForResponseAsync(requestId, cmd[0] ?? string.Empty, options) as MpvCommandReplyEventArgs;
-            return result?.Data.Value;
+            return result.Data.Parse<T>();
         }
-        return null;
-    }
-
-    /// <summary>
-    /// Sends specified message to MPV and returns the response.
-    /// </summary>
-    /// <param name="name">The property to get.</param>
-    /// <param name="format"></param>
-    /// <param name="options">Additional command options.</param>
-    /// <returns>The server's response to the command.</returns>
-    /// <exception cref="InvalidOperationException">The response contained an error and ThrowOnError is True.</exception>
-    /// <exception cref="TimeoutException">A response from MPV was not received before timeout.</exception>
-    /// <exception cref="FormatException">The data returned by the server could not be parsed.</exception>
-    /// <exception cref="ObjectDisposedException">The underlying connection was disposed.</exception>
-    public async Task<object?> GetPropertyAsync(string name, MpvFormat format, ApiAsyncOptions? options)
-    {
-        // Prepare the request.
-        var requestId = GetWaitForResponseOption(options) ? _requestId++ : 0;
-
-        // Send the request.
-        GetPropertyAsync(requestId, name, format);
-        LogAppend(name);
-
-        if (requestId > 0)
-        {
-            var result = await WaitForResponseAsync(requestId, name, options) as MpvPropertyEventArgs;
-            return result?.Value;
-        }
-        return null;
+        return default;
     }
 
     /// <summary>
@@ -232,49 +201,30 @@ public partial class MpvContextBase
     /// <exception cref="TimeoutException">A response from MPV was not received before timeout.</exception>
     /// <exception cref="FormatException">The data returned by the server could not be parsed.</exception>
     /// <exception cref="ObjectDisposedException">The underlying connection was disposed.</exception>
-    public async Task<T?> GetPropertyAsync<T>(string name, ApiAsyncOptions? options)
+    public async Task<T?> GetPropertyAsync<T>(string name, MpvAsyncOptions? options)
     {
         // Prepare the request.
         var requestId = GetWaitForResponseOption(options) ? _requestId++ : 0;
 
         // Send the request.
-        var format = GetMpvFormat<T?>();
+        var format = MpvFormatter.GetMpvFormat<T?>();
         GetPropertyAsync(requestId, name, format);
-        LogAppend(name);
 
-        if (requestId > 0)
+        if (requestId > 0 && 
+            await WaitForResponseAsync(requestId, name, options) is MpvPropertyEventArgs result && 
+            typeof(T) != typeof(object))
         {
-            var result = await WaitForResponseAsync(requestId, name, options) as MpvPropertyEventArgs;
-            return (T?)result?.Value;
+            return MpvFormatter.ParseData<T>(result.Data);
         }
         return default;
     }
     
-    public async Task SetPropertyAsync<T>(string name, T newValue, ApiCommandOptions? options = null)
+    public async Task SetPropertyAsync<T>(string name, T newValue, MpvAsyncOptions? options = null)
     {
         var requestId = GetWaitForResponseOption(options) ? _requestId++ : 0;
         unsafe
         {
-            var type = typeof(T);
-            switch (type)
-            {
-                case not null when type == typeof(long?) || type == typeof(int?):
-                    var vLong = Convert.ToInt64(newValue);
-                    MpvApi.SetPropertyAsync(Ctx, requestId, name, MpvFormat.Int64, &vLong).CheckCode();
-                    break;
-                case not null when type == typeof(double?) || type == typeof(float?):
-                    var vDouble = Convert.ToDouble(newValue);
-                    MpvApi.SetPropertyAsync(Ctx, requestId, name, MpvFormat.Double, &vDouble).CheckCode();
-                    break;
-                case not null when type == typeof(bool?):
-                    var vBool = newValue as bool? == true ? 1 : 0;
-                    MpvApi.SetPropertyAsync(Ctx, requestId, name, MpvFormat.Flag, &vBool).CheckCode();
-                    break;
-                case not null when type == typeof(string):
-                    var vString = Utf8Marshaler.FromManaged(Encoding.UTF8, newValue.ToStringInvariant());
-                    MpvApi.SetPropertyAsync(Ctx, requestId, name, MpvFormat.String, &vString).CheckCode();
-                    break;
-            }
+            MpvFormatter.SetPropertyAsync(Ctx, name, newValue, requestId);
         }
         if (requestId > 0)
         {
@@ -288,7 +238,7 @@ public partial class MpvContextBase
     /// <param name="requestId">The request ID to wait for.</param>
     /// <param name="commandName">The name of the command being executed.</param>
     /// <param name="options">Additional command options.</param>
-    private async Task<MpvEventArgs?> WaitForResponseAsync(ulong requestId, string commandName, ApiAsyncOptions? options = null, CancellationToken? cancelToken = null)
+    private async Task<MpvEventArgs?> WaitForResponseAsync(ulong requestId, string commandName, MpvAsyncOptions? options = null, CancellationToken? cancelToken = null)
     {
         // Wait for response with matching RequestId.
         var watch = new Stopwatch();
@@ -342,37 +292,6 @@ public partial class MpvContextBase
         lock (_responses)
         {
             return _responses.FirstOrDefault(x => x.RequestId == requestId);
-        }
-    }
-
-    private void LogAppend(MpvNode args)
-    {
-        if (Log != null)
-        {
-            LogAppend(args.ToString());
-        }
-    }
-    
-    private void LogAppend(string[] args)
-    {
-        if (Log != null)
-        {
-            LogAppend(string.Join(" ", args));
-        }
-    }
-    
-    /// <summary>
-    /// Adds a message to the log if enabled.
-    /// </summary>
-    /// <param name="message">The message to append to the log.</param>
-    private void LogAppend(string message)
-    {
-        if (Log != null)
-        {
-            lock (Log)
-            {
-                Log?.Append(message);
-            }
         }
     }
 }

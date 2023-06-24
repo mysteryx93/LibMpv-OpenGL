@@ -96,23 +96,13 @@ public unsafe struct MpvNode
     /// <summary>Type of the data stored in this struct. This value rules what members in the given union can be accessed. The following formats are currently defined to be allowed in mpv_node:</summary>
     public MpvFormat Format { get; set; }
 
-    public object Value => Format switch
-    {
-        MpvFormat.Double => (object)U.Double,
-        MpvFormat.Flag => U.Flag,
-        MpvFormat.Int64 => U.Int64,
-        MpvFormat.String => Utf8Marshaler.FromNative(Encoding.UTF8, U.String),
-        MpvFormat.OsdString => Utf8Marshaler.FromNative(Encoding.UTF8, U.String),
-        _ => Format.ToString()
-    } ?? string.Empty;
-
     public override string ToString() => Format switch
     {
         MpvFormat.Double => U.Double.ToStringInvariant(),
         MpvFormat.Flag => U.Flag.ToStringInvariant(),
         MpvFormat.Int64 => U.Int64.ToStringInvariant(),
-        MpvFormat.String => Utf8Marshaler.FromNative(Encoding.UTF8, U.String),
-        MpvFormat.OsdString => Utf8Marshaler.FromNative(Encoding.UTF8, U.String),
+        MpvFormat.String => Utf8Marshaler.FromNative(U.String, Encoding.UTF8),
+        MpvFormat.OsdString => Utf8Marshaler.FromNative(U.String, Encoding.UTF8),
         _ => Format.ToString()
     } ?? string.Empty;
 }

@@ -18,11 +18,32 @@ public class MpvScriptOption
     /// <summary>
     /// Gets the value of the script option.
     /// </summary>
-    public Task<string?> GetAsync(ApiCommandOptions? options = null) => _options.GetAsync(_key, options);
+    public string? Get() => _options.Get(_key);
+
+    /// <summary>
+    /// Gets the value of the script option.
+    /// </summary>
+    public Task<string?> GetAsync(MpvAsyncOptions? options = null) => _options.GetAsync(_key, options);
+
     /// <summary>
     /// Sets the value of the script option.
     /// </summary>
-    public async Task SetAsync(string value, ApiCommandOptions? options = null)
+    public void SetAsync(string value)
+    {
+        if (value.HasValue())
+        {
+            _options.Add(_key, value);
+        }
+        else
+        {
+            Remove();
+        }
+    }
+    
+    /// <summary>
+    /// Sets the value of the script option.
+    /// </summary>
+    public async Task SetAsync(string value, MpvAsyncOptions? options = null)
     {
         if (value.HasValue())
         {
@@ -37,5 +58,10 @@ public class MpvScriptOption
     /// <summary>
     /// Removes the value from script options.
     /// </summary>
-    public Task RemoveAsync(ApiCommandOptions? options = null) => _options.RemoveAsync(_key, options);
+    public void Remove() => _options.RemoveAsync(_key);
+
+    /// <summary>
+    /// Removes the value from script options.
+    /// </summary>
+    public Task RemoveAsync(MpvAsyncOptions? options = null) => _options.RemoveAsync(_key, options);
 }

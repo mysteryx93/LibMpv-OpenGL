@@ -7,11 +7,11 @@ public partial class MpvContext
     private MpvCommand<T> C<T>(params object?[] commandName) => new(this, commandName);
     private MpvCommand C(params object?[] commandName) => new(this, commandName);
 
-    /// <summary>
-    /// Returns the name of the client as string. This is the string ipc-N with N being an integer number.
-    /// </summary>
-    public MpvCommand<string?> GetClientName() => 
-        C<string?>("client_name");
+    // /// <summary>
+    // /// Returns the name of the client as string. This is the string ipc-N with N being an integer number.
+    // /// </summary>
+    // public MpvCommand<string?> GetClientName() => 
+    //     C<string?>("client_name");
 
     /// <summary>
     /// Returns the current mpv internal time in microseconds as a number. This is basically the system time, with an arbitrary offset.

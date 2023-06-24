@@ -4,7 +4,20 @@
 /// Represents a read-only MPV property.
 /// </summary>
 /// <typeparam name="T">The return type of the property.</typeparam>
-public class MpvPropertyRead<T> : MpvProperty<T?>
+public class MpvPropertyRead<T> : MpvPropertyRead<T, T>
+    where T : struct
+{
+    public MpvPropertyRead(MpvContext mpv, string name) : base(mpv, name)
+    {
+    }
+}
+
+/// <summary>
+/// Represents a read-only MPV property.
+/// </summary>
+/// <typeparam name="T">The return type of the property.</typeparam>
+/// <typeparam name="TRaw">The raw data type to be parsed from MPV. Usually the same.</typeparam>
+public class MpvPropertyRead<T, TRaw> : MpvProperty<T?, TRaw>
     where T : struct
 {
     public MpvPropertyRead(MpvContext mpv, string name) : base(mpv, name)
@@ -27,19 +40,36 @@ public class MpvPropertyRead<T> : MpvProperty<T?>
     /// <summary>
     /// Returns the value of the given property. The value will be sent in the data field of the replay message.
     /// </summary>
-    public T? Get() => Mpv.GetProperty<T?>(PropertyName);
+    public T? Get() => ParseValue(Mpv.GetProperty<TRaw>(PropertyName));
     
     /// <summary>
     /// Returns the value of the given property. The value will be sent in the data field of the replay message.
     /// </summary>
-    public Task<T?> GetAsync(ApiCommandOptions? options = null) => Mpv.GetPropertyAsync<T?>(PropertyName, options);
+    public async Task<T?> GetAsync(MpvAsyncOptions? options = null)
+    {
+        var result = await Mpv.GetPropertyAsync<TRaw>(PropertyName, options);
+        return ParseValue(result);
+    }
 }
 
 /// <summary>
 /// Represents a read-only MPV property.
 /// </summary>
 /// <typeparam name="T">The return type of the property.</typeparam>
-public class MpvPropertyReadRef<T> : MpvProperty<T?>
+public class MpvPropertyReadRef<T> : MpvPropertyReadRef<T, T>
+    where T : class
+{
+    public MpvPropertyReadRef(MpvContext mpv, string name) : base(mpv, name)
+    {
+    }
+}
+
+/// <summary>
+/// Represents a read-only MPV property.
+/// </summary>
+/// <typeparam name="T">The return type of the property.</typeparam>
+/// <typeparam name="TRaw">The raw data type to be parsed from MPV. Usually the same.</typeparam>
+public class MpvPropertyReadRef<T, TRaw> : MpvProperty<T?, TRaw>
     where T : class
 {
     public MpvPropertyReadRef(MpvContext mpv, string name) : base(mpv, name)
@@ -63,18 +93,22 @@ public class MpvPropertyReadRef<T> : MpvProperty<T?>
     /// <summary>
     /// Returns the value of the given property. The value will be sent in the data field of the replay message.
     /// </summary>
-    public virtual T? Get() => Mpv.GetProperty<T?>(PropertyName);
+    public virtual T? Get() => ParseValue(Mpv.GetProperty<TRaw>(PropertyName));
 
     /// <summary>
     /// Returns the value of the given property. The value will be sent in the data field of the replay message.
     /// </summary>
-    public virtual Task<T?> GetAsync(ApiCommandOptions? options = null) => Mpv.GetPropertyAsync<T?>(PropertyName, options);
+    public virtual async Task<T?> GetAsync(MpvAsyncOptions? options = null)
+    {
+        var result = await Mpv.GetPropertyAsync<TRaw>(PropertyName, options);
+        return ParseValue(result);
+    }
 }
 
 /// <summary>
 /// Represents a read-only MPV property of type String.
 /// </summary>
-public class MpvPropertyReadString : MpvPropertyReadRef<string>
+public class MpvPropertyReadString : MpvPropertyReadRef<string, string>
 {
     public MpvPropertyReadString(MpvContext mpv, string name) : base(mpv, name)
     {

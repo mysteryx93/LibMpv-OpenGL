@@ -25,6 +25,6 @@ public class MpvOptionRefDictionary : MpvOptionRef<IDictionary<string, string>>
     /// <summary>
     /// Sets a dictionary of key/value pairs.
     /// </summary>
-    public override Task SetAsync(IDictionary<string, string> values, ApiCommandOptions? options = null) =>
+    public override Task SetAsync(IDictionary<string, string> values, MpvAsyncOptions? options = null) =>
         Mpv.SetPropertyAsync(PropertyName, FormatKeyValueList(values), options);
 }

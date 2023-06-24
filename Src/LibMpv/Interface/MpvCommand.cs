@@ -11,9 +11,9 @@ public class MpvCommand<T>
         _cmd = cmd;
     }
 
-    public T Invoke(ApiCommandOptions? options = null) => (T)_context.RunCommandRet(options, _cmd);
+    public T Invoke(MpvCommandOptions? options = null) => (T)_context.RunCommandRet<T>(options, _cmd);
 
-    public async Task<T> InvokeAsync(ApiCommandOptions? options = null) => (T)(await _context.CommandAsync(options, _cmd))!;
+    public async Task<T> InvokeAsync(MpvCommandOptions? options = null) => (T)(await _context.CommandAsync<T>(options, _cmd))!;
 }
 
 public class MpvCommand
@@ -27,7 +27,7 @@ public class MpvCommand
         _cmd = cmd;
     }
 
-    public void Invoke(ApiCommandOptions? options = null) => _context.RunCommandRet(options, _cmd);
+    public void Invoke(MpvCommandOptions? options = null) => _context.RunCommand(options, _cmd);
 
-    public async Task InvokeAsync(ApiCommandOptions? options = null) => await _context.CommandAsync(options, _cmd);
+    public async Task InvokeAsync(MpvCommandOptions? options = null) => await _context.CommandAsync<object>(options, _cmd);
 }

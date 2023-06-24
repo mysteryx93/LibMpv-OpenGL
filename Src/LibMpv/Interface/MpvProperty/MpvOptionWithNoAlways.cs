@@ -16,7 +16,7 @@ public class MpvOptionWithNoAlways<T> : MpvOptionWithNo<T>
     /// <summary>
     /// Sets the option to 'always'.
     /// </summary>
-    public Task SetAlwaysAsync(ApiCommandOptions? options = null) => SetValueAsync("always", options);
+    public Task SetAlwaysAsync(MpvAsyncOptions? options = null) => SetValueAsync("always", options);
 
     /// <summary>
     /// Gets whether the option is 'always'.
@@ -26,5 +26,5 @@ public class MpvOptionWithNoAlways<T> : MpvOptionWithNo<T>
     /// <summary>
     /// Gets whether the option is 'always'.
     /// </summary>
-    public Task<bool> GetAlwaysAsync(ApiCommandOptions? options = null) => GetValueAsync(new[] { "always", "true" }, options);
+    public Task<bool> GetAlwaysAsync(MpvAsyncOptions? options = null) => GetValueAsync(new[] { "always", "true" }, options);
 }

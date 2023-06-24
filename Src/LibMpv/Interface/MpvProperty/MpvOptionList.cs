@@ -22,7 +22,7 @@ public class MpvOptionList : MpvOptionRef<IEnumerable<string>>
     /// <summary>
     /// Get the list of items.
     /// </summary>
-    public new async Task<IEnumerable<string>> GetAsync(ApiCommandOptions? options = null) =>
+    public new async Task<IEnumerable<string>> GetAsync(MpvAsyncOptions? options = null) =>
         await Mpv.GetPropertyAsync<IEnumerable<string>?>(PropertyName, options) ?? Array.Empty<string>();
 
     /// <summary>
@@ -33,7 +33,7 @@ public class MpvOptionList : MpvOptionRef<IEnumerable<string>>
     /// <summary>
     /// Set a list of items (using the list separator, interprets escapes).
     /// </summary>
-    public Task SetAsync(string value, ApiCommandOptions? options = null) => SetAsync(new[] { value }, options);
+    public Task SetAsync(string value, MpvAsyncOptions? options = null) => SetAsync(new[] { value }, options);
 
     /// <summary>
     /// Set a list of items.
@@ -48,7 +48,7 @@ public class MpvOptionList : MpvOptionRef<IEnumerable<string>>
     /// <summary>
     /// Set a list of items.
     /// </summary>
-    public override async Task SetAsync(IEnumerable<string> values, ApiCommandOptions? options = null)
+    public override async Task SetAsync(IEnumerable<string> values, MpvAsyncOptions? options = null)
     {
         // For some properties, SetProperty calls Append instead of Set, so we clear first for consistency.
         await ClearAsync(options);
@@ -58,23 +58,23 @@ public class MpvOptionList : MpvOptionRef<IEnumerable<string>>
     /// <summary>
     /// Append single item.
     /// </summary>
-    public void Add(string value, ApiCommandOptions? options = null) =>
+    public void Add(string value, MpvAsyncOptions? options = null) =>
         Mpv.ChangeList(PropertyName, 
-            ListOptionOperation.Append, value.CheckNotNullOrEmpty(nameof(value))).Invoke(options);
+            ListOptionOperation.Append, value.CheckNotNullOrEmpty(nameof(value))).Invoke(options.ToCommandOptions());
 
     /// <summary>
     /// Append single item.
     /// </summary>
-    public Task AddAsync(string value, ApiCommandOptions? options = null) =>
+    public Task AddAsync(string value, MpvAsyncOptions? options = null) =>
         Mpv.ChangeList(PropertyName, 
-            ListOptionOperation.Append, value.CheckNotNullOrEmpty(nameof(value))).InvokeAsync(options);
+            ListOptionOperation.Append, value.CheckNotNullOrEmpty(nameof(value))).InvokeAsync(options.ToCommandOptions());
 
     /// <summary>
     /// Adds a list of items to the list.
     /// </summary>
     /// <param name="values">The list of items to add.</param>
     /// <returns></returns>
-    public override void Add(IEnumerable<string> values, ApiCommandOptions? options = null)
+    public override void Add(IEnumerable<string> values, MpvAsyncOptions? options = null)
     {
         foreach (var item in values)
         {
@@ -90,7 +90,7 @@ public class MpvOptionList : MpvOptionRef<IEnumerable<string>>
     /// </summary>
     /// <param name="values">The list of items to add.</param>
     /// <returns></returns>
-    public override async Task AddAsync(IEnumerable<string> values, ApiCommandOptions? options = null)
+    public override async Task AddAsync(IEnumerable<string> values, MpvAsyncOptions? options = null)
     {
         foreach (var item in values)
         {
@@ -104,36 +104,36 @@ public class MpvOptionList : MpvOptionRef<IEnumerable<string>>
     /// <summary>
     /// Clear the option (remove all items).
     /// </summary>
-    public void Clear(ApiCommandOptions? options = null) => Mpv.ChangeList(PropertyName, ListOptionOperation.Clr, string.Empty).Invoke(options);
+    public void Clear(MpvAsyncOptions? options = null) => Mpv.ChangeList(PropertyName, ListOptionOperation.Clr, string.Empty).Invoke(options.ToCommandOptions());
 
     /// <summary>
     /// Clear the option (remove all items).
     /// </summary>
-    public Task ClearAsync(ApiCommandOptions? options = null) => Mpv.ChangeList(PropertyName, ListOptionOperation.Clr, string.Empty).InvokeAsync(options);
+    public Task ClearAsync(MpvAsyncOptions? options = null) => Mpv.ChangeList(PropertyName, ListOptionOperation.Clr, string.Empty).InvokeAsync(options.ToCommandOptions());
 
     /// <summary>
     /// Delete item if present (does not interpret escapes).
     /// </summary>
-    public void Remove(string value, ApiCommandOptions? options = null) =>
+    public void Remove(string value, MpvAsyncOptions? options = null) =>
         Mpv.ChangeList(PropertyName, 
-            ListOptionOperation.Remove, value.CheckNotNullOrEmpty(nameof(value))).Invoke(options);
+            ListOptionOperation.Remove, value.CheckNotNullOrEmpty(nameof(value))).Invoke(options.ToCommandOptions());
 
     /// <summary>
     /// Delete item if present (does not interpret escapes).
     /// </summary>
-    public Task RemoveAsync(string value, ApiCommandOptions? options = null) =>
+    public Task RemoveAsync(string value, MpvAsyncOptions? options = null) =>
         Mpv.ChangeList(PropertyName, 
-            ListOptionOperation.Remove, value.CheckNotNullOrEmpty(nameof(value))).InvokeAsync(options);
+            ListOptionOperation.Remove, value.CheckNotNullOrEmpty(nameof(value))).InvokeAsync(options.ToCommandOptions());
 
     /// <summary>
     /// Append an item, or remove if if it already exists (no escapes).
     /// </summary>
-    public void Toggle(string value, ApiCommandOptions? options = null) => 
-        Mpv.ChangeList(PropertyName, ListOptionOperation.Toggle, value).Invoke(options);
+    public void Toggle(string value, MpvAsyncOptions? options = null) => 
+        Mpv.ChangeList(PropertyName, ListOptionOperation.Toggle, value).Invoke(options.ToCommandOptions());
 
     /// <summary>
     /// Append an item, or remove if if it already exists (no escapes).
     /// </summary>
-    public Task ToggleAsync(string value, ApiCommandOptions? options = null) => 
-        Mpv.ChangeList(PropertyName, ListOptionOperation.Toggle, value).InvokeAsync(options);
+    public Task ToggleAsync(string value, MpvAsyncOptions? options = null) => 
+        Mpv.ChangeList(PropertyName, ListOptionOperation.Toggle, value).InvokeAsync(options.ToCommandOptions());
 }

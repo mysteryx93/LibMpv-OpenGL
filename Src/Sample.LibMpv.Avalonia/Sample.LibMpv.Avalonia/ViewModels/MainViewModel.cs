@@ -24,7 +24,6 @@ public class MainViewModel : ReactiveObject
     {
         Stop();
         await Mpv.LoadFile(MediaUrl).InvokeAsync();
-        // await Mpv.CommandAsync(null, "loadfile", MediaUrl, "replace");
     }
 
     public void Pause() => Pause(null);
@@ -35,7 +34,11 @@ public class MainViewModel : ReactiveObject
         Mpv.Pause.Set(value.Value);
     }
 
-    public void Stop() => Mpv.Stop().Invoke();
+    public void Stop()
+    {
+        Mpv.Stop().Invoke();
+        Mpv.Pause.Set(false);
+    }
 
     public void Software() => Renderer = VideoRenderer.Software;
     public void OpenGl() => Renderer = VideoRenderer.OpenGl;

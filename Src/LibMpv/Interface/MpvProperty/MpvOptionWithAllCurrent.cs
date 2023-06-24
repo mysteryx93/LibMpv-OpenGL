@@ -16,7 +16,7 @@ public class MpvOptionWithAllCurrent<T> : MpvOptionWith<T>
     /// <summary>
     /// Sets the option to 'all'.
     /// </summary>
-    public Task SetAllAsync(ApiCommandOptions? options = null) => SetValueAsync("all", options);
+    public Task SetAllAsync(MpvAsyncOptions? options = null) => SetValueAsync("all", options);
 
     /// <summary>
     /// Gets whether the option is 'all'.
@@ -26,7 +26,7 @@ public class MpvOptionWithAllCurrent<T> : MpvOptionWith<T>
     /// <summary>
     /// Gets whether the option is 'all'.
     /// </summary>
-    public Task<bool> GetAllAsync(ApiCommandOptions? options = null) => GetValueAsync("all", options);
+    public Task<bool> GetAllAsync(MpvAsyncOptions? options = null) => GetValueAsync("all", options);
 
     /// <summary>
     /// Sets the option to 'current'.
@@ -36,7 +36,7 @@ public class MpvOptionWithAllCurrent<T> : MpvOptionWith<T>
     /// <summary>
     /// Sets the option to 'current'.
     /// </summary>
-    public Task SetCurrentAsync(ApiCommandOptions? options = null) => SetValueAsync("current", options);
+    public Task SetCurrentAsync(MpvAsyncOptions? options = null) => SetValueAsync("current", options);
 
     /// <summary>
     /// Gets whether the option is 'current'.
@@ -46,5 +46,5 @@ public class MpvOptionWithAllCurrent<T> : MpvOptionWith<T>
     /// <summary>
     /// Gets whether the option is 'current'.
     /// </summary>
-    public Task<bool> GetCurrentAsync(ApiCommandOptions? options = null) => GetValueAsync("current", options);
+    public Task<bool> GetCurrentAsync(MpvAsyncOptions? options = null) => GetValueAsync("current", options);
 }

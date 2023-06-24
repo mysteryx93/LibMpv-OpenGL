@@ -23,7 +23,7 @@ public unsafe partial class MpvContextBase
 
     /// <summary>Send a command to the player. Commands are the same as those used in input.conf, except that this function takes parameters in a pre-split form.</summary>
     /// <param name="args">List of strings. Usually, the first item is the command, and the following items are arguments.</param>
-    public void RunCommand(ApiCommandOptions? options, params object?[] args)
+    public void RunCommand(MpvCommandOptions? options, params object?[] args)
     {
         var cmd = AddCommandPrefixes(options, args);
         using var helper = new MarshalHelper();
@@ -33,7 +33,7 @@ public unsafe partial class MpvContextBase
 
     /// <summary>Send a command to the player. Commands are the same as those used in input.conf, except that this function takes parameters in a pre-split form.</summary>
     /// <param name="args">List of strings. Usually, the first item is the command, and the following items are arguments.</param>
-    public object RunCommandRet(ApiCommandOptions? options, params object?[] args)
+    public T? RunCommandRet<T>(MpvCommandOptions? options, params object?[] args)
     {
         var cmd = AddCommandPrefixes(options, args);
         cmd = cmd.Select(x => x.ToStringInvariant()).ToArray();
@@ -41,7 +41,7 @@ public unsafe partial class MpvContextBase
         var val = (byte**)helper.CStringArrayForManagedUtf8StringArray(cmd);
         var ret = new MpvNode();
         MpvApi.CommandRet(Ctx, val, &ret).CheckCode();
-        return ret.Value;
+        return ret.Parse<T>();
     }
 
     /// <summary>Same as mpv_command, but run the command asynchronously.</summary>
@@ -122,50 +122,14 @@ public unsafe partial class MpvContextBase
     /// <summary>Read the value of the given property.</summary>
     /// <param name="name">The property name.</param>
     /// <typeparam name="T">The data type of the property to read.</typeparam>
-    public T GetProperty<T>(string name)
-    {
-        var format = GetMpvFormat<T>();
-        switch (format)
-        {
-            case MpvFormat.Int64:
-                var vLong = 0L;
-                MpvApi.GetProperty(Ctx, name, MpvFormat.Int64, &vLong).CheckCode();
-                return (T)(object)vLong;
-            case MpvFormat.Double:
-                var vDouble = 0.0;
-                MpvApi.GetProperty(Ctx, name, MpvFormat.Double, &vDouble).CheckCode();
-                return (T)(object)vDouble;
-            case MpvFormat.Flag:
-                var vBool = 0;
-                MpvApi.GetProperty(Ctx, name, MpvFormat.Flag, &vBool).CheckCode();
-                return (T)(object)(vBool == 1);
-            case MpvFormat.String:
-            case MpvFormat.OsdString:
-                var value = MpvApi.GetPropertyString(Ctx, name);
-                return (T)(object)(value != null ? Utf8Marshaler.FromNative(Encoding.UTF8, value) : null)!;
-        }
-        return default!;
-    }
-
-    protected MpvFormat GetMpvFormat<T>()
-    {
-        var type = typeof(T);
-        return type switch
-        {
-            _ when type == typeof(long) || type == typeof(int) || type == typeof(long?) || type == typeof(int?) => MpvFormat.Int64,
-            _ when type == typeof(double) || type == typeof(float) || type == typeof(double?) || type == typeof(float?) => MpvFormat.Double,
-            _ when type == typeof(bool) || type == typeof(bool?) => MpvFormat.Flag,
-            _ when type == typeof(string) => MpvFormat.String,
-            _ => MpvFormat.None
-        };
-    }
+    public T GetProperty<T>(string name) => MpvFormatter.GetProperty<T>(Ctx, name);
 
     /// <summary>Return the property as "OSD" formatted string. This is the same as mpv_get_property_string, but using MPV_FORMAT_OSD_STRING.</summary>
     /// <returns>Property value, or NULL if the property can't be retrieved. Free the string with mpv_free().</returns>
     public string? GetPropertyOsdString(string name)
     {
         var value = MpvApi.GetPropertyOsdString(Ctx, name);
-        return value != null ? Utf8Marshaler.FromNative(Encoding.UTF8, value) : null;
+        return value != null ? Utf8Marshaler.FromNative(value, Encoding.UTF8) : null;
     }
 
     /// <summary>Return the value of the property with the given name as string. This is equivalent to mpv_get_property() with MPV_FORMAT_STRING.</summary>
@@ -174,7 +138,7 @@ public unsafe partial class MpvContextBase
     public string? GetPropertyString(string name)
     {
         var value = MpvApi.GetPropertyString(Ctx, name);
-        return value != null ? Utf8Marshaler.FromNative(Encoding.UTF8, value) : null;
+        return value != null ? Utf8Marshaler.FromNative(value, Encoding.UTF8) : null;
     }
     
     /// <summary>Get a property asynchronously. You will receive the result of the operation as well as the property data with the MPV_EVENT_GET_PROPERTY_REPLY event. You should check the mpv_event.error field on the reply event.</summary>
@@ -283,30 +247,8 @@ public unsafe partial class MpvContextBase
     /// <param name="format">see enum mpv_format.</param>
     /// <param name="data">Option value. The value will be copied by the function. It will never be modified by the client API.</param>
     protected int SetPropertyAsync(ulong requestId, string name, MpvFormat format, void* data) => MpvApi.SetPropertyAsync(Ctx, requestId, name, format, data);
-    
-    public void SetProperty<T>(string name, T newValue)
-    {
-        var format = GetMpvFormat<T>();
-        switch (format)
-        {
-            case MpvFormat.Int64:
-                var vLong = Convert.ToInt64(newValue);
-                MpvApi.SetProperty(Ctx, name, MpvFormat.Int64, &vLong).CheckCode();
-                break;
-            case MpvFormat.Double:
-                var vDouble = Convert.ToDouble(newValue);
-                MpvApi.SetProperty(Ctx, name, MpvFormat.Double, &vDouble).CheckCode();
-                break;
-            case MpvFormat.Flag:
-                var vBool = newValue as bool? == true ? 1 : 0;
-                MpvApi.SetProperty(Ctx, name, MpvFormat.Flag, &vBool).CheckCode();
-                break;
-            case MpvFormat.String:
-            case MpvFormat.OsdString:
-                MpvApi.SetPropertyString(Ctx, name, newValue.ToStringInvariant()).CheckCode();
-                break;
-        }
-    }
+
+    public void SetProperty<T>(string name, T value) => MpvFormatter.SetProperty(Ctx, name, value);
 
     /// <summary>Convenience function to set a property to a string value.</summary>
     public void SetPropertyString(string name, string newValue)

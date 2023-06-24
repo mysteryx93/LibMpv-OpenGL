@@ -16,7 +16,7 @@ public class MpvOptionWithAuto<T> : MpvOptionWith<T>
     /// <summary>
     /// Sets the option to 'auto'.
     /// </summary>
-    public Task SetAutoAsync(ApiCommandOptions? options = null) => SetValueAsync("auto", options);
+    public Task SetAutoAsync(MpvAsyncOptions? options = null) => SetValueAsync("auto", options);
 
     /// <summary>
     /// Gets whether the option is 'auto'.
@@ -26,5 +26,5 @@ public class MpvOptionWithAuto<T> : MpvOptionWith<T>
     /// <summary>
     /// Gets whether the option is 'auto'.
     /// </summary>
-    public Task<bool> GetAutoAsync(ApiCommandOptions? options = null) => GetValueAsync("auto", options);
+    public Task<bool> GetAutoAsync(MpvAsyncOptions? options = null) => GetValueAsync("auto", options);
 }

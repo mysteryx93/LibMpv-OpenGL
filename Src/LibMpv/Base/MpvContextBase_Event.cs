@@ -184,29 +184,7 @@ public unsafe partial class MpvContextBase
     private MpvPropertyEventArgs ToPropertyChangedEventArgs(MpvEvent e)
     {
         var property = MarshalHelper.PtrToStructure<MpvEventProperty>((nint) e.Data);
-
-        object? value = null;
-
-        if (property.Format == MpvFormat.String)
-        {
-            value = MarshalHelper.PtrToStringUtf8OrNull((nint) property.Data);
-        }
-        else if (property.Format == MpvFormat.Int64)
-        {
-            value = Marshal.ReadInt64((nint) property.Data);
-        }
-        else if (property.Format == MpvFormat.Flag)
-        {
-            var flag = Marshal.ReadInt32((nint) property.Data);
-            value = flag == 1;
-        }
-        else if (property.Format == MpvFormat.Double)
-        {
-            var doubleBytes = new byte[sizeof(double)];
-            Marshal.Copy((nint) property.Data, doubleBytes, 0, sizeof(double));
-            value = BitConverter.ToDouble(doubleBytes, 0);
-        }
         var name = MarshalHelper.PtrToStringUtf8OrEmpty((nint) property.Name);
-        return new MpvPropertyEventArgs(property.Format, name, value, e);
+        return new MpvPropertyEventArgs(property.Format, name, (nint)property.Data, e);
     }
 }

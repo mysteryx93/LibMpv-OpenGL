@@ -12,7 +12,7 @@ public class MpvOptionEnum<T> : MpvPropertyWrite<T>
     /// </summary>
     /// <param name="value">The raw value to parse.</param>
     /// <returns>The typed parsed value.</returns>
-    protected override T? ParseValue(string? value)
+    protected T? ParseValue(string? value)
     {
         if (value == null)
         {
@@ -41,13 +41,13 @@ public class MpvOptionEnum<T> : MpvPropertyWrite<T>
     /// </summary>
     /// <param name="value">The value to format.</param>
     /// <returns>The formatted value.</returns>
-    protected override string? FormatValue(T? value) => value?.FormatMpvFlag() ?? null;
+    protected string? FormatValue(T? value) => value?.FormatMpvFlag() ?? null;
 
-    public override void Add(T value, ApiCommandOptions? options = null) => throw new NotImplementedException();
+    public override void Add(T value, MpvAsyncOptions? options = null) => throw new NotImplementedException();
 
-    public override Task AddAsync(T value, ApiCommandOptions? options = null) => throw new NotImplementedException();
+    public override Task AddAsync(T value, MpvAsyncOptions? options = null) => throw new NotImplementedException();
 
-    public override void Multiply(double value, ApiCommandOptions? options = null) => throw new NotImplementedException();
+    public override void Multiply(double value, MpvAsyncOptions? options = null) => throw new NotImplementedException();
 
-    public override Task MultiplyAsync(double value, ApiCommandOptions? options = null) => throw new NotImplementedException();
+    public override Task MultiplyAsync(double value, MpvAsyncOptions? options = null) => throw new NotImplementedException();
 }

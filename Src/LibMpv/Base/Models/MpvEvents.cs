@@ -18,16 +18,16 @@ public class MpvEventArgs : EventArgs
 
 public class MpvPropertyEventArgs : MpvEventArgs
 {
-    public MpvPropertyEventArgs(MpvFormat format, string name, object? value, MpvEvent e) : base(e)
+    public MpvPropertyEventArgs(MpvFormat format, string name, IntPtr data, MpvEvent e) : base(e)
     {
         Format = format;
         Name = name;
-        Value = value;
+        Data = data;
     }
 
     public MpvFormat Format { get; }
     public string Name { get; }
-    public object? Value { get; }
+    public IntPtr Data { get; }
 }
 
 public class MpvCommandReplyEventArgs : MpvEventArgs

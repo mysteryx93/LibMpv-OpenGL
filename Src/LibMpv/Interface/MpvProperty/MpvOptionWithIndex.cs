@@ -16,7 +16,7 @@ public class MpvOptionWithIndex<T> : MpvOptionWith<T>
     /// <summary>
     /// Sets the option to 'index'.
     /// </summary>
-    public Task SetIndexAsync(ApiCommandOptions? options = null) => SetValueAsync("index", options);
+    public Task SetIndexAsync(MpvAsyncOptions? options = null) => SetValueAsync("index", options);
 
     /// <summary>
     /// Gets whether the option is 'index'.
@@ -26,5 +26,5 @@ public class MpvOptionWithIndex<T> : MpvOptionWith<T>
     /// <summary>
     /// Gets whether the option is 'index'.
     /// </summary>
-    public Task<bool> GetIndexAsync(ApiCommandOptions? options = null) => GetValueAsync("index", options);
+    public Task<bool> GetIndexAsync(MpvAsyncOptions? options = null) => GetValueAsync("index", options);
 }

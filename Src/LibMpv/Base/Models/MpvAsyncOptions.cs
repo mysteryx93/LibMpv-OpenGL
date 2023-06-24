@@ -3,7 +3,7 @@
 /// <summary>
 /// Contains additional options for sending API commands.
 /// </summary>
-public class ApiAsyncOptions
+public class MpvAsyncOptions
 {
     /// <summary>
     /// Gets or sets whether to wait for server response when sending the command. If null, takes the default value configured on the controller.

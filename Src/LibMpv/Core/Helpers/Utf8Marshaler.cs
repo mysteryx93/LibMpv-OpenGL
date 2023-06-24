@@ -4,7 +4,7 @@ public sealed class Utf8Marshaler : ICustomMarshaler
 {
     private static readonly Utf8Marshaler Instance = new();
 
-    public object? MarshalNativeToManaged(IntPtr pNativeData) => FromNative(Encoding.UTF8, pNativeData);
+    public object? MarshalNativeToManaged(IntPtr pNativeData) => FromNative(pNativeData, Encoding.UTF8);
 
     public IntPtr MarshalManagedToNative(object? managedObj)
     {
@@ -36,13 +36,14 @@ public sealed class Utf8Marshaler : ICustomMarshaler
 
     public static ICustomMarshaler GetInstance(string cookie) => Instance;
 
-    public static unsafe string? FromNative(Encoding encoding, IntPtr pNativeData) => FromNative(encoding, (byte*)pNativeData);
+    public static unsafe string? FromNative(IntPtr pNativeData, Encoding? encoding = null) => FromNative((byte*)pNativeData, encoding);
 
-    public static unsafe string? FromNative(Encoding encoding, byte* pNativeData)
+    public static unsafe string? FromNative(byte* pNativeData, Encoding? encoding = null)
     {
         if (pNativeData == null)
             return null;
-
+        
+        encoding ??= Encoding.UTF8;
         var start = pNativeData;
         var walk = start;
 

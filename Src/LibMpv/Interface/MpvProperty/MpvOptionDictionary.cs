@@ -37,7 +37,7 @@ public class MpvOptionDictionary : MpvOptionRef<IDictionary<string, string>>
     /// <summary>
     /// Sets a dictionary of key/value pairs.
     /// </summary>
-    public override Task SetAsync(IDictionary<string, string> values, ApiCommandOptions? options = null) => Mpv.ChangeList(PropertyName, ListOptionOperation.Set, FormatKeyValueList(values)).InvokeAsync(options);
+    public override Task SetAsync(IDictionary<string, string> values, MpvAsyncOptions? options = null) => Mpv.ChangeList(PropertyName, ListOptionOperation.Set, FormatKeyValueList(values)).InvokeAsync(options.ToCommandOptions());
 
     /// <summary>
     /// Gets the value of specified key.
@@ -55,7 +55,7 @@ public class MpvOptionDictionary : MpvOptionRef<IDictionary<string, string>>
     /// <summary>
     /// Gets the value of specified key.
     /// </summary>
-    public async Task<string?> GetAsync(string key, ApiCommandOptions? options = null)
+    public async Task<string?> GetAsync(string key, MpvAsyncOptions? options = null)
     {
         var values = await GetAsync(options);
         if (values != null && values.TryGetValue(key, out var result))
@@ -77,33 +77,33 @@ public class MpvOptionDictionary : MpvOptionRef<IDictionary<string, string>>
     /// <summary>
     /// Adds a key/value pair to the list.
     /// </summary>
-    public void Add(string key, string value, ApiCommandOptions? options = null) =>
+    public void Add(string key, string value, MpvAsyncOptions? options = null) =>
         Mpv.ChangeList(PropertyName, ListOptionOperation.Add, 
-            FormatKeyValue(key.CheckNotNullOrEmpty(nameof(key)), value)).Invoke(options);
+            FormatKeyValue(key.CheckNotNullOrEmpty(nameof(key)), value)).Invoke(options.ToCommandOptions());
     
     /// <summary>
     /// Adds a key/value pair to the list.
     /// </summary>
-    public Task AddAsync(string key, string value, ApiCommandOptions? options = null) =>
+    public Task AddAsync(string key, string value, MpvAsyncOptions? options = null) =>
         Mpv.ChangeList(PropertyName, ListOptionOperation.Add, 
-            FormatKeyValue(key.CheckNotNullOrEmpty(nameof(key)), value)).InvokeAsync(options);
+            FormatKeyValue(key.CheckNotNullOrEmpty(nameof(key)), value)).InvokeAsync(options.ToCommandOptions());
 
     /// <summary>
     /// Adds a dictionary of key/value pairs to the list.
     /// </summary>
-    public override Task AddAsync(IDictionary<string, string> values, ApiCommandOptions? options = null) => Mpv.ChangeList(PropertyName, ListOptionOperation.Add, FormatKeyValueList(values)).InvokeAsync(options);
+    public override Task AddAsync(IDictionary<string, string> values, MpvAsyncOptions? options = null) => Mpv.ChangeList(PropertyName, ListOptionOperation.Add, FormatKeyValueList(values)).InvokeAsync(options.ToCommandOptions());
 
     /// <summary>
     /// Delete item if present (does not interpret escapes).
     /// </summary>
-    public void Remove(string key, ApiCommandOptions? options = null) =>
+    public void Remove(string key, MpvAsyncOptions? options = null) =>
         Mpv.ChangeList(PropertyName, ListOptionOperation.Remove, 
-            key.CheckNotNullOrEmpty(nameof(key))).Invoke(options);
+            key.CheckNotNullOrEmpty(nameof(key))).Invoke(options.ToCommandOptions());
 
     /// <summary>
     /// Delete item if present (does not interpret escapes).
     /// </summary>
-    public Task RemoveAsync(string key, ApiCommandOptions? options = null) =>
+    public Task RemoveAsync(string key, MpvAsyncOptions? options = null) =>
         Mpv.ChangeList(PropertyName, ListOptionOperation.Remove, 
-            key.CheckNotNullOrEmpty(nameof(key))).InvokeAsync(options);
+            key.CheckNotNullOrEmpty(nameof(key))).InvokeAsync(options.ToCommandOptions());
 }

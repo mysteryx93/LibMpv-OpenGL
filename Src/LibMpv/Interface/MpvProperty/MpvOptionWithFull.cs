@@ -16,7 +16,7 @@ public class MpvOptionWithFull<T> : MpvOptionWith<T>
     /// <summary>
     /// Sets the option to 'full'.
     /// </summary>
-    public Task SetFullAsync(ApiCommandOptions? options = null) => SetValueAsync("full", options);
+    public Task SetFullAsync(MpvAsyncOptions? options = null) => SetValueAsync("full", options);
 
     /// <summary>
     /// Gets whether the option is 'full'.
@@ -26,5 +26,5 @@ public class MpvOptionWithFull<T> : MpvOptionWith<T>
     /// <summary>
     /// Gets whether the option is 'full'.
     /// </summary>
-    public Task<bool> GetFullAsync(ApiCommandOptions? options = null) => GetValueAsync("full", options);
+    public Task<bool> GetFullAsync(MpvAsyncOptions? options = null) => GetValueAsync("full", options);
 }

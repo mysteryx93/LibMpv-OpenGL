@@ -16,7 +16,7 @@ public class MpvOptionWithYesNo<T> : MpvOptionWithNo<T>
     /// <summary>
     /// Sets the option to 'yes'.
     /// </summary>
-    public Task SetYesAsync(ApiCommandOptions? options = null) => SetValueAsync("yes", options);
+    public Task SetYesAsync(MpvAsyncOptions? options = null) => SetValueAsync("yes", options);
 
     /// <summary>
     /// Gets whether the option is 'yes'.
@@ -26,5 +26,5 @@ public class MpvOptionWithYesNo<T> : MpvOptionWithNo<T>
     /// <summary>
     /// Gets whether the option is 'yes'.
     /// </summary>
-    public Task<bool> GetYesAsync(ApiCommandOptions? options = null) => GetValueAsync(new[] { "yes", "true" }, options);
+    public Task<bool> GetYesAsync(MpvAsyncOptions? options = null) => GetValueAsync(new[] { "yes", "true" }, options);
 }
