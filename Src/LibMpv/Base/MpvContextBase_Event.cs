@@ -58,18 +58,12 @@ public unsafe partial class MpvContextBase
 
     private void AsyncSetPropertyHandler(MpvEvent e)
     {
-        if (e.Data != null)
-        {
-            SetProperty_Reply(ToPropertyChangedEventArgs(e));
-        }
+        SetProperty_Reply(ToPropertyChangedEventArgs(e));
     }
 
     private void AsyncGetPropertyHandler(MpvEvent e)
     {
-        if (e.Data != null)
-        {
-            GetProperty_Reply(ToPropertyChangedEventArgs(e));
-        }
+        GetProperty_Reply(ToPropertyChangedEventArgs(e));
     }
 
     private void AsyncCommandReplyHandler(MpvEvent e)
@@ -183,7 +177,8 @@ public unsafe partial class MpvContextBase
 
     private MpvPropertyEventArgs ToPropertyChangedEventArgs(MpvEvent e)
     {
-        var property = MarshalHelper.PtrToStructure<MpvEventProperty>((nint) e.Data);
+        e.Error.CheckCode();
+        var property = e.Data != null ? MarshalHelper.PtrToStructure<MpvEventProperty>((nint) e.Data) : new MpvEventProperty();
         var name = MarshalHelper.PtrToStringUtf8OrEmpty((nint) property.Name);
         return new MpvPropertyEventArgs(property.Format, name, (nint)property.Data, e);
     }

@@ -8,6 +8,13 @@
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <AssemblyName>HanumanInstitute.LibMpv</AssemblyName>
     <RootNamespace>HanumanInstitute.LibMpv</RootNamespace>
+    <Authors>Etienne Charland, Vadim Beloborodov</Authors>
+    <Description>MPV implementation for .NET including OpenGL, Native and Software renderers</Description>
+    <Copyright>Copyright © 2023-2023 Etienne Charland</Copyright>
+    <PackageProjectUrl>https://github.com/mysteryx93/LibMpv-OpenGL</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/mysteryx93/LibMpv-OpenGL</RepositoryUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>

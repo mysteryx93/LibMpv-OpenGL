@@ -35,12 +35,12 @@ public static unsafe class MpvFormatter
 
     public static MpvFormat GetMpvFormat<T>()
     {
-        var type = typeof(T);
+        var type = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
         return type switch
         {
-            _ when type == typeof(long) || type == typeof(int) || type == typeof(long?) || type == typeof(int?) => MpvFormat.Int64,
-            _ when type == typeof(double) || type == typeof(float) || type == typeof(double?) || type == typeof(float?) => MpvFormat.Double,
-            _ when type == typeof(bool) || type == typeof(bool?) => MpvFormat.Flag,
+            _ when type == typeof(long) || type == typeof(int) => MpvFormat.Int64,
+            _ when type == typeof(double) || type == typeof(float) => MpvFormat.Double,
+            _ when type == typeof(bool) => MpvFormat.Flag,
             _ when type == typeof(string) => MpvFormat.String,
             _ => MpvFormat.None
         };
@@ -72,18 +72,18 @@ public static unsafe class MpvFormatter
 
     public static void SetPropertyAsync<T>(MpvHandle* ctx, string name, T value, ulong requestId)
     {
-        var type = typeof(T);
+        var type = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
         switch (type)
         {
-            case not null when type == typeof(long?) || type == typeof(int?):
+            case not null when type == typeof(long) || type == typeof(int):
                 var vLong = Convert.ToInt64(value);
                 MpvApi.SetPropertyAsync(ctx, requestId, name, MpvFormat.Int64, &vLong).CheckCode();
                 break;
-            case not null when type == typeof(double?) || type == typeof(float?):
+            case not null when type == typeof(double) || type == typeof(float):
                 var vDouble = Convert.ToDouble(value);
                 MpvApi.SetPropertyAsync(ctx, requestId, name, MpvFormat.Double, &vDouble).CheckCode();
                 break;
-            case not null when type == typeof(bool?):
+            case not null when type == typeof(bool):
                 var vBool = value as bool? == true ? 1 : 0;
                 MpvApi.SetPropertyAsync(ctx, requestId, name, MpvFormat.Flag, &vBool).CheckCode();
                 break;
