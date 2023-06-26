@@ -112,7 +112,11 @@ public static unsafe class MpvFormatter
     {
         object? value = null;
         var format = GetMpvFormat<T>();
-        if (format == MpvFormat.String)
+        if (data == IntPtr.Zero)
+        {
+            return default;
+        }
+        else if (format == MpvFormat.String)
         {
             value = Utf8Marshaler.FromNative(data);
             // value = MarshalHelper.PtrToStringUtf8OrNull((nint) property.Data);

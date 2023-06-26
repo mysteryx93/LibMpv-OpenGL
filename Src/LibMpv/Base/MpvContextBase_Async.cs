@@ -19,6 +19,12 @@ public partial class MpvContextBase
     private readonly ManualResetEvent _waitResponse = new(true);
 
     /// <summary>
+    /// Returns a unique incremental request ID to send to MPV API.
+    /// </summary>
+    /// <returns>A unique ID</returns>
+    public ulong UniqueRequestId() => _requestId++;
+
+    /// <summary>
     /// Gets or sets the default options for all requests passing through this controller.
     /// </summary>
     public MpvCommandOptions DefaultOptions { get; } = new MpvCommandOptions()
@@ -178,7 +184,7 @@ public partial class MpvContextBase
         var cmd = AddCommandPrefixes(options, args);
         
         // Prepare the request.
-        var requestId = GetWaitForResponseOption(options) ? _requestId++ : 0;
+        var requestId = GetWaitForResponseOption(options) ? UniqueRequestId() : 0;
 
         // Send the request.
         RunCommandAsync(requestId, cmd);
@@ -204,7 +210,7 @@ public partial class MpvContextBase
     public async Task<T?> GetPropertyAsync<T>(string name, MpvAsyncOptions? options)
     {
         // Prepare the request.
-        var requestId = GetWaitForResponseOption(options) ? _requestId++ : 0;
+        var requestId = GetWaitForResponseOption(options) ? UniqueRequestId() : 0;
 
         // Send the request.
         var format = MpvFormatter.GetMpvFormat<T?>();
@@ -221,7 +227,7 @@ public partial class MpvContextBase
     
     public async Task SetPropertyAsync<T>(string name, T newValue, MpvAsyncOptions? options = null)
     {
-        var requestId = GetWaitForResponseOption(options) ? _requestId++ : 0;
+        var requestId = GetWaitForResponseOption(options) ? UniqueRequestId() : 0;
         unsafe
         {
             MpvFormatter.SetPropertyAsync(Ctx, name, newValue, requestId);

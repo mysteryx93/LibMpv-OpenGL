@@ -27,14 +27,14 @@ public class MpvPropertyRead<T, TRaw> : MpvProperty<T?, TRaw>
     /// <summary>
     /// Watches a property for changes. If the given property is changed, then an event 'property-change' will be generated.
     /// </summary>
-    public void Observe(ulong observeId) =>
+    private void Observe(ulong observeId) =>
         Mpv.ObserveProperty(observeId, PropertyName, Format);
 
     /// <summary>
-    /// Undo ObserveProperty or ObservePropertyString. This requires the numeric id passed to the observed command as argument.
+    /// Undo ObserveProperty. This requires the numeric id passed to the observed command as argument.
     /// </summary>
     /// <param name="observeId">The ID of the observer.</param>
-    public void UnobservePropertyAsync(ulong observeId) =>
+    private void Unobserve(ulong observeId) =>
         Mpv.UnobserveProperty(observeId);
 
     /// <summary>
@@ -49,6 +49,41 @@ public class MpvPropertyRead<T, TRaw> : MpvProperty<T?, TRaw>
     {
         var result = await Mpv.GetPropertyAsync<TRaw>(PropertyName, options);
         return ParseValue(result);
+    }
+
+    private ulong _propertyChangeId = 0;
+    private EventHandler<MpvValueChangedEventArgs<T, TRaw>>? _changed;
+    public event EventHandler<MpvValueChangedEventArgs<T, TRaw>>? Changed
+    {
+        add
+        {
+            if ((_changed?.GetInvocationList().Length ?? 0) == 0)
+            {
+                _propertyChangeId = Mpv.UniqueRequestId();
+                Observe(_propertyChangeId);
+                Mpv.PropertyChanged += MpvContext_PropertyChanged;
+            } 
+            _changed += value;
+        }
+        remove
+        {
+            _changed -= value;
+            if ((_changed?.GetInvocationList().Length ?? 0) == 0)
+            {
+                Mpv.PropertyChanged -= MpvContext_PropertyChanged;
+                Unobserve(_propertyChangeId);
+            }
+        }
+    }
+
+    private void MpvContext_PropertyChanged(object sender, MpvPropertyEventArgs e)
+    {
+        if (e.RequestId == _propertyChangeId)
+        {
+            var newValueRaw = MpvFormatter.ParseData<TRaw>(e.Data)!;
+            var newValue = ParseValue(newValueRaw);
+            _changed?.Invoke(this, new MpvValueChangedEventArgs<T, TRaw>(base.PropertyName, newValue, newValueRaw));
+        }
     }
 }
 
@@ -80,14 +115,14 @@ public class MpvPropertyReadRef<T, TRaw> : MpvProperty<T?, TRaw>
     /// Watches a property for changes. If the given property is changed, then an event 'property-change' will be generated.
     /// </summary>
     /// <param name="observeId">An ID that will be passed to the generated events as parameter 'id'.</param>
-    public void Observe(ulong observeId) =>
+    private void Observe(ulong observeId) =>
         Mpv.ObserveProperty(observeId, PropertyName, Format);
 
     /// <summary>
-    /// Undo ObserveProperty or ObservePropertyString. This requires the numeric id passed to the observed command as argument.
+    /// Undo ObserveProperty. This requires the numeric id passed to the observed command as argument.
     /// </summary>
     /// <param name="observeId">The ID of the observer.</param>
-    public void UnobservePropertyAsync(ulong observeId) =>
+    private void Unobserve(ulong observeId) =>
         Mpv.UnobserveProperty(observeId);
 
     /// <summary>
@@ -102,6 +137,42 @@ public class MpvPropertyReadRef<T, TRaw> : MpvProperty<T?, TRaw>
     {
         var result = await Mpv.GetPropertyAsync<TRaw>(PropertyName, options);
         return ParseValue(result);
+    }
+    
+    
+    private ulong _propertyChangeId = 0;
+    private EventHandler<MpvValueChangedEventArgsRef<T, TRaw>>? _changed;
+    public event EventHandler<MpvValueChangedEventArgsRef<T, TRaw>>? Changed
+    {
+        add
+        {
+            if ((_changed?.GetInvocationList().Length ?? 0) == 0)
+            {
+                _propertyChangeId = Mpv.UniqueRequestId();
+                Observe(_propertyChangeId);
+                Mpv.PropertyChanged += MpvContext_PropertyChanged;
+            } 
+            _changed += value;
+        }
+        remove
+        {
+            _changed -= value;
+            if ((_changed?.GetInvocationList().Length ?? 0) == 0)
+            {
+                Mpv.PropertyChanged -= MpvContext_PropertyChanged;
+                Unobserve(_propertyChangeId);
+            }
+        }
+    }
+
+    private void MpvContext_PropertyChanged(object sender, MpvPropertyEventArgs e)
+    {
+        if (e.RequestId == _propertyChangeId)
+        {
+            var newValueRaw = MpvFormatter.ParseData<TRaw>(e.Data)!;
+            var newValue = ParseValue(newValueRaw);
+            _changed?.Invoke(this, new MpvValueChangedEventArgsRef<T, TRaw>(base.PropertyName, newValue, newValueRaw));
+        }
     }
 }
 

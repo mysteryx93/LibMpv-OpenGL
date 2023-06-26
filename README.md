@@ -39,6 +39,7 @@ As I will not be using these features myself for a while, someone else will need
 TODO:
 
 - [Improve Native implementation for Windows](https://github.com/mysteryx93/MediaPlayerUI.NET/issues/7#issuecomment-1602399799)
+- OpenGL and Software renderers, clear view after stop
 - Android version works in project "AndroidSample" but not in "Sample.LibMpv.Avalonia". Once the main sample works, "AndroidSample" can be removed.
 - Android version crashes when switching app.
 - MpvContext: async property get doesn't work on string but works for other data types
@@ -47,6 +48,7 @@ TODO:
 - Test on MacOS
 - Compile MPV for iOS
 - Implement for iOS
+- Add WPF and WinUI implementation? should be quite easy
 
 ## License
 

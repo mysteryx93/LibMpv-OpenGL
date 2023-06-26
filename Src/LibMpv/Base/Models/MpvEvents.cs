@@ -78,3 +78,37 @@ public class MpvStartFileEventArgs : EventArgs
     }
     public long PlayListEntryId { get; }
 }
+
+public class MpvValueChangedEventArgs<T, TRaw> : EventArgs
+    where T : struct
+{
+    public MpvValueChangedEventArgs(string propertyName, T? newValue, TRaw newValueRaw)
+    {
+        PropertyName = propertyName;
+        NewValue = newValue;
+        NewValueRaw = newValueRaw;
+    }
+    
+    public string PropertyName { get; set; }
+    
+    public T? NewValue { get; set; }
+    
+    public TRaw NewValueRaw { get; set; }
+}
+
+public class MpvValueChangedEventArgsRef<T, TRaw> : EventArgs
+    where T : class
+{
+    public MpvValueChangedEventArgsRef(string propertyName, T? newValue, TRaw newValueRaw)
+    {
+        PropertyName = propertyName;
+        NewValue = newValue;
+        NewValueRaw = newValueRaw;
+    }
+    
+    public string PropertyName { get; set; }
+    
+    public T? NewValue { get; set; }
+    
+    public TRaw NewValueRaw { get; set; }
+}
