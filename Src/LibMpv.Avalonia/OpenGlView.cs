@@ -28,6 +28,8 @@ public class OpenGlView : OpenGlControlBase, IVideoView
 
     protected override void OnOpenGlInit(GlInterface gl)
     {
+
+        MpvContext.SetOptionString("vo", "libmpv");
         if (_getProcAddress != null) { return; }
         
         _getProcAddress = gl.GetProcAddress;
