@@ -8,7 +8,7 @@ public class MacFunctionResolver : FunctionResolverBase
     private const int RTLD_NOW = 0x002;
 
     protected override string GetNativeLibraryName(string libraryName, int version) => $"{libraryName}.{version}.dylib";
-    protected override string[] GetSearchPaths() => new string[] { "/Users/jeffbaxter/Downloads/Hawkeye2.app/Contents/MacOS" };
+    protected override string[] GetSearchPaths() => new string[] { "/Library" };
     protected override IntPtr LoadNativeLibrary(string libraryName) => dlopen(libraryName, RTLD_NOW);
     protected override IntPtr FindFunctionPointer(IntPtr nativeLibraryHandle, string functionName) => dlsym(nativeLibraryHandle, functionName);
 

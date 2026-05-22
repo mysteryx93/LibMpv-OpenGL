@@ -44,7 +44,7 @@ public abstract class FunctionResolverBase : IFunctionResolver
             return default;
         }
 
-#if NETSTANDARD2_0_OR_GREATER || NET9_0
+#if NETSTANDARD2_0_OR_GREATER || NET10_0
         try
         {
             return Marshal.GetDelegateForFunctionPointer<T>(functionPointer);
