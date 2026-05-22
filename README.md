@@ -34,6 +34,7 @@ Software rendering is also available as a fallback on all platforms.
 
 - .NET 10 or later
 - Avalonia 12
+- libmpv 0.40.0 or greater
 
 Native libmpv binaries for Windows, macOS, and Linux are bundled with the NuGet packages — no separate installation required.
 
@@ -54,6 +55,39 @@ dotnet add package LibMpv.Avalonia
 Mpv.LoadFile("path/to/video.mp4");
 Mpv.Play();
 ```
+
+## Getting the Native libmpv Libraries
+
+LibMpv requires native libmpv 0.40.0 binaries. Note that mpv does not publish official prebuilt packages — the options below are community-maintained builds.
+
+**Windows**
+
+Download a prebuilt `libmpv-2.dll` from one of these community build sources:
+
+- [shinchiro/mpv-winbuild-cmake](https://github.com/shinchiro/mpv-winbuild-cmake/releases) — download `mpv-dev-x86_64-<date>.7z`, extract and place `libmpv-2.dll` alongside your application.
+- [zhongfly/mpv-winbuild](https://github.com/zhongfly/mpv-winbuild/releases) — alternative CI builds; `mpv-dev-x86_64-<date>.7z` contains the same `libmpv-2.dll`.
+
+**macOS**
+
+Install via Homebrew (requires macOS 11 or later):
+
+```bash
+brew install mpv
+```
+
+The dylib will be available at `/opt/homebrew/lib/libmpv.dylib` (Apple Silicon) or `/usr/local/lib/libmpv.dylib` (Intel).
+
+**Linux (Ubuntu/Debian)**
+
+The version of `libmpv` in the standard Ubuntu repositories may be older than 0.40.0. To get 0.40.0, use the unofficial PPA:
+
+```bash
+sudo add-apt-repository ppa:ubuntuhandbook1/mpv
+sudo apt update
+sudo apt install libmpv-dev
+```
+
+For other distros, install via your package manager (e.g. `dnf install mpv-libs-devel` on Fedora) or build from source using [mpv-build](https://github.com/mpv-player/mpv-build).
 
 ## Sample Project
 
