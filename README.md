@@ -18,7 +18,7 @@ An Avalonia 12 implementation is provided via the `LibMpv.Avalonia` package. Dro
 
 ```xml
 <mpv:MpvVideoView MpvContext="{Binding Mpv}" />
-\```
+```
 
 ### Renderers
 
@@ -44,7 +44,7 @@ Native libmpv binaries for Windows, macOS, and Linux are bundled with the NuGet 
 ```
 dotnet add package LibMpv
 dotnet add package LibMpv.Avalonia
-\```
+```
 
 2. Add `MpvVideoView` to your Avalonia view and bind a `MpvContext` instance from your ViewModel.
 
@@ -53,7 +53,7 @@ dotnet add package LibMpv.Avalonia
 ```csharp
 Mpv.LoadFile("path/to/video.mp4");
 Mpv.Play();
-\```
+```
 
 ## Sample Project
 
