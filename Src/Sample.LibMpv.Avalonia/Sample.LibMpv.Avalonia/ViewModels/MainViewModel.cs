@@ -1,17 +1,16 @@
 ﻿using HanumanInstitute.LibMpv;
 using HanumanInstitute.LibMpv.Avalonia;
-using HanumanInstitute.LibMpv.Core;
 using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
+using ReactiveUI.SourceGenerators;
 
 namespace Sample.LibMpv.Avalonia.ViewModels;
 
-public class MainViewModel : ReactiveObject
+public partial class MainViewModel : ReactiveObject
 {
-    public MpvContext Mpv { get; set; } = default!;
+    public MpvContext? Mpv { get; set; }
 
     [Reactive]
-    public VideoRenderer Renderer { get; set; }
+    public partial VideoRenderer Renderer { get; set; }
 
     public VideoRenderer[] RendererOptions { get; } = Enum.GetValues<VideoRenderer>();
 
@@ -24,22 +23,39 @@ public class MainViewModel : ReactiveObject
 
     public async void Play()
     {
-        Stop();
-        await Mpv.LoadFile(MediaUrl).InvokeAsync();
+        try
+        {
+            Stop();
+
+            if (Mpv != null)
+            {
+                await Mpv.LoadFile(MediaUrl).InvokeAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Play failed: + {ex.Message}");
+        }
     }
 
     public void Pause() => Pause(null);
 
     public void Pause(bool? value)
     {
-        value ??= !Mpv.Pause.Get()!;
-        Mpv.Pause.Set(value.Value);
+        if (Mpv != null)
+        {
+            value ??= !Mpv.Pause.Get()!;
+            Mpv.Pause.Set(value.Value);
+        }
     }
 
     public void Stop()
     {
-        Mpv.Stop().Invoke();
-        Mpv.Pause.Set(false);
+        if (Mpv != null)
+        {
+            Mpv.Stop().Invoke();
+            Mpv.Pause.Set(false);
+        }
     }
 
     public void Software() => Renderer = VideoRenderer.Software;

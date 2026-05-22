@@ -108,34 +108,29 @@ public static unsafe class MpvFormatter
         return (T)result!;
     }
 
-    public static T? ParseData<T>(IntPtr data)
+    /// <summary>
+    /// Copies and parses native event property data immediately while the mpv event buffer is still valid.
+    /// Must be called within the event handler before the next mpv_wait_event call.
+    /// </summary>
+    public static object? ParseDataEagerly(MpvFormat format, IntPtr data)
     {
-        object? value = null;
-        var format = GetMpvFormat<T>();
-        if (data == IntPtr.Zero)
+        if (data == IntPtr.Zero) return null;
+        return format switch
         {
-            return default;
-        }
-        else if (format == MpvFormat.String)
-        {
-            value = Utf8Marshaler.FromNative(data);
-            // value = MarshalHelper.PtrToStringUtf8OrNull((nint) property.Data);
-        }
-        else if (format == MpvFormat.Int64)
-        {
-            value = Marshal.ReadInt64(data);
-        }
-        else if (format == MpvFormat.Flag)
-        {
-            var flag = Marshal.ReadInt32(data);
-            value = flag == 1;
-        }
-        else if (format == MpvFormat.Double)
-        {
-            var doubleBytes = new byte[sizeof(double)];
-            Marshal.Copy(data, doubleBytes, 0, sizeof(double));
-            value = BitConverter.ToDouble(doubleBytes, 0);
-        }
-        return (T?)value;
+            MpvFormat.Int64 => *(long*)data,
+            MpvFormat.Flag => *(int*)data == 1,
+            MpvFormat.Double => *(double*)data,
+            // data is char** — dereference once to get the char*, then marshal to managed string
+            MpvFormat.String => Utf8Marshaler.FromNative(Marshal.ReadIntPtr(data)),
+            _ => null
+        };
+    }
+
+    public static T? ParseData<T>(object? data)
+    {
+        if (data is null) return default;
+        if (data is T direct) return direct;
+        var type = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
+        return (T?)Convert.ChangeType(data, type);
     }
 }

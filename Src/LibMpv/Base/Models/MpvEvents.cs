@@ -18,7 +18,7 @@ public class MpvEventArgs : EventArgs
 
 public class MpvPropertyEventArgs : MpvEventArgs
 {
-    public MpvPropertyEventArgs(MpvFormat format, string name, IntPtr data, MpvEvent e) : base(e)
+    public MpvPropertyEventArgs(MpvFormat format, string name, object? data, MpvEvent e) : base(e)
     {
         Format = format;
         Name = name;
@@ -27,7 +27,7 @@ public class MpvPropertyEventArgs : MpvEventArgs
 
     public MpvFormat Format { get; }
     public string Name { get; }
-    public IntPtr Data { get; }
+    public object? Data { get; }
 }
 
 public class MpvCommandReplyEventArgs : MpvEventArgs

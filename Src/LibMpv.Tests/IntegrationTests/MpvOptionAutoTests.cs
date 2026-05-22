@@ -1,15 +1,10 @@
 ﻿using System.Threading.Tasks;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace HanumanInstitute.LibMpv.Tests.IntegrationTests;
 
-public class MpvOptionAutoTests : IntegrationTestBase
+public class MpvOptionAutoTests(ITestOutputHelper output) : IntegrationTestBase(output)
 {
-    public MpvOptionAutoTests(ITestOutputHelper output) : base(output)
-    {
-    }
-
     [Fact]
     public void Get_VideoId_ReturnsFalse()
     {

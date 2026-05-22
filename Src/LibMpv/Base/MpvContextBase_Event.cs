@@ -180,6 +180,7 @@ public unsafe partial class MpvContextBase
         e.Error.CheckCode();
         var property = e.Data != null ? MarshalHelper.PtrToStructure<MpvEventProperty>((nint) e.Data) : new MpvEventProperty();
         var name = MarshalHelper.PtrToStringUtf8OrEmpty((nint) property.Name);
-        return new MpvPropertyEventArgs(property.Format, name, (nint)property.Data, e);
+        var data = MpvFormatter.ParseDataEagerly(property.Format, (nint)property.Data);
+        return new MpvPropertyEventArgs(property.Format, name, data, e);
     }
 }

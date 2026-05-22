@@ -47,7 +47,7 @@ public class MpvOptionWith<T> : MpvOption<T, string>
         var result = Mpv.GetProperty<string?>(PropertyName);
         return result != null && values.Contains(result);
     }
-    
+
     /// <summary>
     /// Gets whether the option is in specified raw values.
     /// </summary>
@@ -56,7 +56,6 @@ public class MpvOptionWith<T> : MpvOption<T, string>
         var result = await Mpv.GetPropertyAsync<string?>(PropertyName, options);
         return result != null && values.Contains(result);
     }
-
     // /// <summary>
     // /// Parse value as specified type without throwing any exception on failure.
     // /// </summary>

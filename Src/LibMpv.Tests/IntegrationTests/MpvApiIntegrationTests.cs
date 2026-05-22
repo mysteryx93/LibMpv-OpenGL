@@ -1,15 +1,12 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using Xunit.Abstractions;
+
 
 namespace HanumanInstitute.LibMpv.Tests.IntegrationTests;
 
-public class MpvApiIntegrationTests : IntegrationTestBase
+public class MpvApiIntegrationTests(ITestOutputHelper output) : IntegrationTestBase(output)
 {
-    public MpvApiIntegrationTests(ITestOutputHelper output) : base(output)
-    { }
-
     [Fact]
     public void MpvVersion_Get_ReturnsValue()
     {
@@ -38,6 +35,7 @@ public class MpvApiIntegrationTests : IntegrationTestBase
         var path = Mpv.Path.Get();
 
         Log(path);
+        Assert.NotNull(path);
         Assert.NotEmpty(path);
     }
 
@@ -45,10 +43,11 @@ public class MpvApiIntegrationTests : IntegrationTestBase
     public async Task LoadFileAsync_WithPrefix_PathNotNull()
     {
         await Mpv.LoadFile(SampleClip).InvokeAsync(options: new MpvCommandOptions() { NoOsd = true });
-        await Task.Delay(50);
+        await Task.Delay(50, TestContext.Current.CancellationToken);
         var path = await Mpv.Path.GetAsync();
 
         Log(path);
+        Assert.NotNull(path);
         Assert.NotEmpty(path);
     }
 
