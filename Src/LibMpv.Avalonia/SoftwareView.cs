@@ -10,12 +10,17 @@ namespace HanumanInstitute.LibMpv.Avalonia;
 
 public class SoftwareView : Control, IVideoView
 {
+    private sealed class SoftwareMpvContext : MpvContext
+    {
+        protected override void OnPreInitialize() => SetOptionString("vo", "libmpv");
+    }
+
     private WriteableBitmap? _renderTarget;
 
     // MpvContext property
     public static readonly DirectProperty<SoftwareView, MpvContext> MpvContextProperty = AvaloniaProperty.RegisterDirect<SoftwareView, MpvContext>(
         nameof(MpvContext), o => o.MpvContext, defaultBindingMode: BindingMode.OneWayToSource);
-    public MpvContext MpvContext { get; } = new();
+    public MpvContext MpvContext { get; } = new SoftwareMpvContext();
 
     public SoftwareView()
     {
@@ -30,12 +35,15 @@ public class SoftwareView : Control, IVideoView
 
     public override void Render(DrawingContext context)
     {
-        if (VisualRoot == null) { return; }
+        if (TopLevel.GetTopLevel(this) == null) { return; }
 
         var bitmapSize = GetPixelSize();
             
         if (_renderTarget == null || _renderTarget.PixelSize.Width != bitmapSize.Width || _renderTarget.PixelSize.Height != bitmapSize.Height)
-            this._renderTarget = new WriteableBitmap(bitmapSize, new Vector(96.0, 96.0), PixelFormat.Bgra8888, AlphaFormat.Premul);
+        {
+            _renderTarget?.Dispose();
+            _renderTarget = new WriteableBitmap(bitmapSize, new Vector(96.0, 96.0), PixelFormat.Bgra8888, AlphaFormat.Premul);
+        }
 
         using (var lockedBitmap = this._renderTarget.Lock())
         {
@@ -51,14 +59,12 @@ public class SoftwareView : Control, IVideoView
 
     private PixelSize GetPixelSize()
     {
-        var scaling = VisualRoot!.RenderScaling;
-        //return new PixelSize(Math.Max(1, (int)(Bounds.Width * scaling)),Math.Max(1, (int)(Bounds.Height * scaling)));
         return new PixelSize((int)Bounds.Width, (int)Bounds.Height);
     }
 
     private void UpdateVideoView()
     {
-        Dispatcher.UIThread.Post(this.InvalidateVisual, DispatcherPriority.Background);
+        this.Dispatcher.Post(this.InvalidateVisual, DispatcherPriority.Background);
     }
 
     protected virtual void Dispose(bool disposing)

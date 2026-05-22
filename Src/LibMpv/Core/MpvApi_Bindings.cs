@@ -1,4 +1,4 @@
-using System.Security;
+﻿using System.Security;
 
 namespace HanumanInstitute.LibMpv.Core;
 
@@ -69,7 +69,7 @@ public static unsafe partial class MpvApi
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int CommandStringDelegate(MpvHandle* ctx,     
-    #if NETSTANDARD2_1_OR_GREATER
+    #if NETSTANDARD2_1_OR_GREATER || NET9_0
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     #else
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
@@ -87,7 +87,7 @@ public static unsafe partial class MpvApi
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate MpvHandle* CreateClientDelegate(MpvHandle* ctx,     
-    #if NETSTANDARD2_1_OR_GREATER
+    #if NETSTANDARD2_1_OR_GREATER || NET9_0
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     #else
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
@@ -99,7 +99,7 @@ public static unsafe partial class MpvApi
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate MpvHandle* CreateWeakClientDelegate(MpvHandle* ctx,     
-    #if NETSTANDARD2_1_OR_GREATER
+    #if NETSTANDARD2_1_OR_GREATER || NET9_0
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     #else
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
@@ -111,7 +111,7 @@ public static unsafe partial class MpvApi
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int DelPropertyDelegate(MpvHandle* ctx,     
-    #if NETSTANDARD2_1_OR_GREATER
+    #if NETSTANDARD2_1_OR_GREATER || NET9_0
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     #else
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
@@ -161,7 +161,7 @@ public static unsafe partial class MpvApi
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int GetPropertyDelegate(MpvHandle* ctx,     
-    #if NETSTANDARD2_1_OR_GREATER
+    #if NETSTANDARD2_1_OR_GREATER || NET9_0
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     #else
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
@@ -173,7 +173,7 @@ public static unsafe partial class MpvApi
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int GetPropertyAsyncDelegate(MpvHandle* ctx, ulong replyUserData,     
-    #if NETSTANDARD2_1_OR_GREATER
+    #if NETSTANDARD2_1_OR_GREATER || NET9_0
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     #else
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
@@ -185,7 +185,7 @@ public static unsafe partial class MpvApi
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate byte* GetPropertyOsdStringDelegate(MpvHandle* ctx,     
-    #if NETSTANDARD2_1_OR_GREATER
+    #if NETSTANDARD2_1_OR_GREATER || NET9_0
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     #else
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
@@ -197,7 +197,7 @@ public static unsafe partial class MpvApi
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate byte* GetPropertyStringDelegate(MpvHandle* ctx,     
-    #if NETSTANDARD2_1_OR_GREATER
+    #if NETSTANDARD2_1_OR_GREATER || NET9_0
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     #else
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
@@ -221,7 +221,7 @@ public static unsafe partial class MpvApi
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int HookAddDelegate(MpvHandle* ctx, ulong replyUserData,     
-    #if NETSTANDARD2_1_OR_GREATER
+    #if NETSTANDARD2_1_OR_GREATER || NET9_0
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     #else
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
@@ -245,7 +245,7 @@ public static unsafe partial class MpvApi
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int LoadConfigFileDelegate(MpvHandle* ctx,     
-    #if NETSTANDARD2_1_OR_GREATER
+    #if NETSTANDARD2_1_OR_GREATER || NET9_0
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     #else
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
@@ -257,7 +257,7 @@ public static unsafe partial class MpvApi
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int ObservePropertyDelegate(MpvHandle* mpv, ulong replyUserData,     
-    #if NETSTANDARD2_1_OR_GREATER
+    #if NETSTANDARD2_1_OR_GREATER || NET9_0
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     #else
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
@@ -323,7 +323,7 @@ public static unsafe partial class MpvApi
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int RequestLogMessagesDelegate(MpvHandle* ctx,     
-    #if NETSTANDARD2_1_OR_GREATER
+    #if NETSTANDARD2_1_OR_GREATER || NET9_0
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     #else
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
@@ -335,7 +335,7 @@ public static unsafe partial class MpvApi
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int SetOptionDelegate(MpvHandle* ctx,     
-    #if NETSTANDARD2_1_OR_GREATER
+    #if NETSTANDARD2_1_OR_GREATER || NET9_0
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     #else
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
@@ -347,13 +347,13 @@ public static unsafe partial class MpvApi
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int SetOptionStringDelegate(MpvHandle* ctx,     
-    #if NETSTANDARD2_1_OR_GREATER
+    #if NETSTANDARD2_1_OR_GREATER || NET9_0
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     #else
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
     #endif
     string name,     
-    #if NETSTANDARD2_1_OR_GREATER
+    #if NETSTANDARD2_1_OR_GREATER || NET9_0
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     #else
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
@@ -365,7 +365,7 @@ public static unsafe partial class MpvApi
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int SetPropertyDelegate(MpvHandle* ctx,     
-    #if NETSTANDARD2_1_OR_GREATER
+    #if NETSTANDARD2_1_OR_GREATER || NET9_0
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     #else
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
@@ -377,7 +377,7 @@ public static unsafe partial class MpvApi
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int SetPropertyAsyncDelegate(MpvHandle* ctx, ulong replyUserData,     
-    #if NETSTANDARD2_1_OR_GREATER
+    #if NETSTANDARD2_1_OR_GREATER || NET9_0
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     #else
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
@@ -389,13 +389,13 @@ public static unsafe partial class MpvApi
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int SetPropertyStringDelegate(MpvHandle* ctx,     
-    #if NETSTANDARD2_1_OR_GREATER
+    #if NETSTANDARD2_1_OR_GREATER || NET9_0
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     #else
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
     #endif
     string name,     
-    #if NETSTANDARD2_1_OR_GREATER
+    #if NETSTANDARD2_1_OR_GREATER || NET9_0
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     #else
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]
@@ -413,7 +413,7 @@ public static unsafe partial class MpvApi
     [SuppressUnmanagedCodeSecurity]
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int StreamCbAddRoDelegate(MpvHandle* ctx,     
-    #if NETSTANDARD2_1_OR_GREATER
+    #if NETSTANDARD2_1_OR_GREATER || NET9_0
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     #else
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]

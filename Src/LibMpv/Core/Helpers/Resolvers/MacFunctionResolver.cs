@@ -4,17 +4,17 @@ namespace HanumanInstitute.LibMpv.Core;
 
 public class MacFunctionResolver : FunctionResolverBase
 {
-    private const string Libdl = "libdl";
+    private const string Libdl = "libSystem";
     private const int RTLD_NOW = 0x002;
 
     protected override string GetNativeLibraryName(string libraryName, int version) => $"{libraryName}.{version}.dylib";
-    protected override string[] GetSearchPaths() => new string[] { MpvApi.RootPath };
+    protected override string[] GetSearchPaths() => new string[] { "/Users/jeffbaxter/Downloads/Hawkeye2.app/Contents/MacOS" };
     protected override IntPtr LoadNativeLibrary(string libraryName) => dlopen(libraryName, RTLD_NOW);
     protected override IntPtr FindFunctionPointer(IntPtr nativeLibraryHandle, string functionName) => dlsym(nativeLibraryHandle, functionName);
 
-    [DllImport(Libdl)]
+    [DllImport("libSystem")]
     public static extern IntPtr dlsym(IntPtr handle, string symbol);
 
-    [DllImport(Libdl)]
+    [DllImport("libSystem")]
     public static extern IntPtr dlopen(string fileName, int flag);
 }

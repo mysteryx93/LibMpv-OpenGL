@@ -42,7 +42,7 @@ public class SoftwareVideoView: UserControl
 
     public override void Render(DrawingContext context)
     {
-        if (VisualRoot == null || _mpvContext == null)
+        if (TopLevel.GetTopLevel(this) == null || _mpvContext == null)
             return;
 
         var bitmapSize = GetPixelSize();
@@ -59,8 +59,8 @@ public class SoftwareVideoView: UserControl
 
     private PixelSize GetPixelSize()
     {
-        var scaling = VisualRoot!.RenderScaling;
-        return new PixelSize(Math.Max(1, (int)(Bounds.Width)),Math.Max(1, (int)(Bounds.Height)));
+        var scaling = TopLevel.GetTopLevel(this)?.RenderScaling ?? 1.0;
+        return new PixelSize(Math.Max(1, (int)(Bounds.Width * scaling)), Math.Max(1, (int)(Bounds.Height * scaling)));
     }
 
     private void UpdateVideoView()

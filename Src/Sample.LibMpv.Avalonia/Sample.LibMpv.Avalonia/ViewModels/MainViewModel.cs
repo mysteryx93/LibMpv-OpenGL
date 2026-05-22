@@ -9,11 +9,13 @@ namespace Sample.LibMpv.Avalonia.ViewModels;
 public class MainViewModel : ReactiveObject
 {
     public MpvContext Mpv { get; set; } = default!;
-    
+
     [Reactive]
     public VideoRenderer Renderer { get; set; }
 
-    string _mediaUrl = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+    public VideoRenderer[] RendererOptions { get; } = Enum.GetValues<VideoRenderer>();
+
+    string _mediaUrl = "https://download.blender.org/peach/bigbuckbunny_movies/BigBuckBunny_320x180.mp4";
     public string MediaUrl
     {
         get => _mediaUrl;

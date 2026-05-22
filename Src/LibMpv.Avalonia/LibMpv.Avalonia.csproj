@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net6.0-android</TargetFrameworks>
     <LangVersion>default</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -14,11 +13,15 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/mysteryx93/LibMpv-OpenGL</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <TargetFramework>net10.0</TargetFramework>
+    <!-- AvaloniaBuildTasksLocation is normally set by Avalonia.props, which is only imported when $(TargetFramework) is
+         already defined. Since nuget.g.props runs before the project body sets $(TargetFramework), the conditional
+         import fails. We set the fallback here so it's available before nuget.g.targets loads the UsingTask. -->
+    <AvaloniaBuildTasksLocation Condition="'$(AvaloniaBuildTasksLocation)' == ''">$(NuGetPackageRoot)avalonia\12.0.3\tools\netstandard2.0\Avalonia.Build.Tasks.dll</AvaloniaBuildTasksLocation>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="11.0.0-rc1.1" />
-    <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.0-rc1.1" />
+    <PackageReference Include="Avalonia" Version="12.0.3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -26,6 +29,10 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-android'">
-    <PackageReference Include="Avalonia.Android" Version="11.0.0-rc1.1" />
+    <PackageReference Include="Avalonia.Android" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <PackageReference Include="ReactiveUI.Avalonia" Version="12.0.1" />
   </ItemGroup>
 </Project>

@@ -22,8 +22,8 @@ public class NativeView : NativeControlHost, IVideoView
 
     private bool _attached;
     private Window? _floatingContent;
-    private IDisposable _disposables;
-    private IDisposable _isEffectivellyVisibleSub;
+    private IDisposable? _disposables;
+    private IDisposable? _isEffectivelyVisibleSub;
 
     // MpvContext property
     public static readonly DirectProperty<NativeView, MpvContext> MpvContextProperty = AvaloniaProperty.RegisterDirect<NativeView, MpvContext>(
@@ -66,7 +66,7 @@ public class NativeView : NativeControlHost, IVideoView
 
         InitializeNativeOverlay();
 
-        _isEffectivellyVisibleSub = this.GetVisualAncestors().OfType<Control>()
+        _isEffectivelyVisibleSub = this.GetVisualAncestors().OfType<Control>()
             .Select(v => v.GetObservable(IsVisibleProperty))
             .CombineLatest(v => !v.Any(o => !o))
             .DistinctUntilChanged()
@@ -77,7 +77,7 @@ public class NativeView : NativeControlHost, IVideoView
     {
         base.OnDetachedFromVisualTree(e);
 
-        _isEffectivellyVisibleSub?.Dispose();
+        _isEffectivelyVisibleSub?.Dispose();
 
         ShowNativeOverlay(false);
 
@@ -102,7 +102,7 @@ public class NativeView : NativeControlHost, IVideoView
         {
             _floatingContent = new Window
             {
-                SystemDecorations = SystemDecorations.None,
+                WindowDecorations = WindowDecorations.None,
                 TransparencyLevelHint = new[] { WindowTransparencyLevel.Transparent },
                 Background = Brushes.Transparent,
                 SizeToContent = SizeToContent.WidthAndHeight,
@@ -114,7 +114,7 @@ public class NativeView : NativeControlHost, IVideoView
                 _floatingContent.Bind(Window.ContentProperty, this.GetObservable(ContentProperty)),
                 this.GetObservable(ContentProperty).Skip(1).Subscribe(_ => UpdateOverlayPosition()),
                 this.GetObservable(BoundsProperty).Skip(1).Subscribe(_ => UpdateOverlayPosition()),
-                Observable.FromEventPattern(VisualRoot, nameof(Window.PositionChanged))
+                Observable.FromEventPattern(TopLevel.GetTopLevel(this) as Window, nameof(Window.PositionChanged))
                     .Subscribe(_ => UpdateOverlayPosition())
             };
         }
@@ -128,7 +128,7 @@ public class NativeView : NativeControlHost, IVideoView
             return;
 
         if (show && _attached)
-            _floatingContent.Show(VisualRoot as Window);
+            _floatingContent.Show(TopLevel.GetTopLevel(this) as Window);
         else
             _floatingContent.Hide();
     }
@@ -204,7 +204,7 @@ public class NativeView : NativeControlHost, IVideoView
         if (disposing)
         {
             _disposables?.Dispose();
-            _isEffectivellyVisibleSub?.Dispose();
+            _isEffectivelyVisibleSub?.Dispose();
             MpvContext.Dispose();
         }
     }

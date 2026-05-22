@@ -22,7 +22,7 @@ public class MpvView : Control
     public static readonly DirectProperty<MpvView, VideoRenderer> RendererProperty =
         AvaloniaProperty.RegisterDirect<MpvView, VideoRenderer>(
             nameof(Renderer), o => o.Renderer, (o, v) => o.Renderer = v);
-    private VideoRenderer _renderer = Avalonia.VideoRenderer.Auto;
+    private VideoRenderer _renderer = VideoRenderer.Auto;
     /// <summary>
     /// Gets or sets the video renderer.
     /// </summary>
@@ -75,6 +75,9 @@ public class MpvView : Control
         if (_view == null) { return; }
 
         var oldContext = MpvContext;
+        // Hide synchronously before removal so the native Win32 child window stops
+        // intercepting input immediately rather than waiting for the async destruction.
+        ((Control)_view).IsVisible = false;
         this.VisualChildren.Remove((Visual)_view);
         _view?.Dispose();
         _view = null;

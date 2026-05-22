@@ -190,6 +190,7 @@ public unsafe partial class MpvContextBase
 
     public void StopRendering()
     {
+        if (_disposed) return;
         RunCommand(null, "stop");
         if (_renderContext != null)
         {

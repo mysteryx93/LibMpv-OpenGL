@@ -1,4 +1,5 @@
 ﻿using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.OpenGL;
 using Avalonia.OpenGL.Controls;
@@ -8,6 +9,11 @@ namespace HanumanInstitute.LibMpv.Avalonia;
 
 public class OpenGlView : OpenGlControlBase, IVideoView
 {
+    private sealed class OpenGlMpvContext : MpvContext
+    {
+        protected override void OnPreInitialize() => SetOptionString("vo", "libmpv");
+    }
+
     delegate IntPtr GetProcAddress(string proc);
 
     private GetProcAddress? _getProcAddress;
@@ -15,7 +21,13 @@ public class OpenGlView : OpenGlControlBase, IVideoView
     // MpvContext property
     public static readonly DirectProperty<OpenGlView, MpvContext> MpvContextProperty = AvaloniaProperty.RegisterDirect<OpenGlView, MpvContext>(
         nameof(MpvContext), o => o.MpvContext, defaultBindingMode: BindingMode.OneWayToSource);
-    public MpvContext MpvContext { get; } = new();
+    public MpvContext MpvContext { get; } = new OpenGlMpvContext();
+
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnAttachedToVisualTree(e);
+        RequestNextFrameRendering();
+    }
 
     protected override void OnOpenGlRender(GlInterface gl, int fbo)
     {
@@ -43,13 +55,13 @@ public class OpenGlView : OpenGlControlBase, IVideoView
 
     private PixelSize GetPixelSize()
     {
-        var scaling = VisualRoot!.RenderScaling;
+        var scaling = TopLevel.GetTopLevel(this)?.RenderScaling ?? 1.0;
         return new PixelSize(Math.Max(1, (int)(Bounds.Width * scaling)), Math.Max(1, (int)(Bounds.Height * scaling)));
     }
 
     private void UpdateVideoView()
     {
-        Dispatcher.UIThread.InvokeAsync(this.RequestNextFrameRendering, DispatcherPriority.Background);
+        this.Dispatcher.InvokeAsync(this.RequestNextFrameRendering, DispatcherPriority.Background);
     }
 
     protected virtual void Dispose(bool disposing)
