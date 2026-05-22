@@ -36,7 +36,7 @@ Software rendering is also available as a fallback on all platforms.
 - Avalonia 12
 - libmpv 0.40.0 or greater
 
-Native libmpv binaries for Windows, macOS, and Linux are bundled with the NuGet packages — no separate installation required.
+Native libmpv binaries for Windows, macOS.
 
 ## Getting Started
 
