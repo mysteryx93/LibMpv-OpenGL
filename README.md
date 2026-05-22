@@ -66,4 +66,3 @@ This project is licensed under the [MIT License](LICENSE).
 Originally created by Etienne Charland (mysteryx93) and Vadim Beloborodov (homov).
 
 Maintained by Jeff Baxter (warden-vt).
-```
