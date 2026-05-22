@@ -17,6 +17,7 @@ public class OpenGlView : OpenGlControlBase, IVideoView
     delegate IntPtr GetProcAddress(string proc);
 
     private GetProcAddress? _getProcAddress;
+    private volatile bool _isIdle;
 
     // MpvContext property
     public static readonly DirectProperty<OpenGlView, MpvContext> MpvContextProperty = AvaloniaProperty.RegisterDirect<OpenGlView, MpvContext>(
@@ -31,6 +32,12 @@ public class OpenGlView : OpenGlControlBase, IVideoView
 
     protected override void OnOpenGlRender(GlInterface gl, int fbo)
     {
+        if (_isIdle)
+        {
+            gl.ClearColor(0, 0, 0, 1);
+            gl.Clear(0x4000); // GL_COLOR_BUFFER_BIT
+            return;
+        }
         if (MpvContext != null && MpvContext.IsCustomRendering())
         {
             var size = GetPixelSize();
@@ -41,17 +48,29 @@ public class OpenGlView : OpenGlControlBase, IVideoView
     protected override void OnOpenGlInit(GlInterface gl)
     {
         if (_getProcAddress != null) { return; }
-        
+
         _getProcAddress = gl.GetProcAddress;
+        MpvContext.Idle += OnMpvIdle;
+        MpvContext.StartFile += OnMpvStartFile;
         MpvContext?.StopRendering();
         MpvContext?.StartOpenGlRendering((name) => _getProcAddress(name), this.UpdateVideoView);
     }
 
     protected override void OnOpenGlDeinit(GlInterface gl)
     {
+        MpvContext.Idle -= OnMpvIdle;
+        MpvContext.StartFile -= OnMpvStartFile;
         MpvContext?.StopRendering();
         _getProcAddress = null;
     }
+
+    private void OnMpvIdle(object? sender, EventArgs e)
+    {
+        _isIdle = true;
+        UpdateVideoView();
+    }
+
+    private void OnMpvStartFile(object? sender, MpvStartFileEventArgs e) => _isIdle = false;
 
     private PixelSize GetPixelSize()
     {
