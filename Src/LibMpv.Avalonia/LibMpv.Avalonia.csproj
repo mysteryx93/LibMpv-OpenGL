@@ -6,13 +6,15 @@
     <Nullable>enable</Nullable>
     <AssemblyName>HanumanInstitute.LibMpv.Avalonia</AssemblyName>
     <RootNamespace>HanumanInstitute.LibMpv.Avalonia</RootNamespace>
-    <Authors>Etienne Charland, Vadim Beloborodov</Authors>
+    <Authors>Etienne Charland, Vadim Beloborodov, Jeff Baxter</Authors>
     <Description>MPV implementation for Avalonia including OpenGL, Native and Software renderers</Description>
-    <Copyright>Copyright © 2023-2023 Etienne Charland</Copyright>
+    <Copyright>Copyright © 2023-2026 Etienne Charland</Copyright>
     <PackageProjectUrl>https://github.com/mysteryx93/LibMpv-OpenGL</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/mysteryx93/LibMpv-OpenGL</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>0.10.0-rc.1</Version>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <TargetFramework>net10.0</TargetFramework>
     <!-- AvaloniaBuildTasksLocation is normally set by Avalonia.props, which is only imported when $(TargetFramework) is
          already defined. Since nuget.g.props runs before the project body sets $(TargetFramework), the conditional
@@ -26,6 +28,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\LibMpv\LibMpv.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-android'">

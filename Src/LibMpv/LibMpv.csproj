@@ -7,18 +7,24 @@
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <AssemblyName>HanumanInstitute.LibMpv</AssemblyName>
     <RootNamespace>HanumanInstitute.LibMpv</RootNamespace>
-    <Authors>Etienne Charland, Vadim Beloborodov</Authors>
+    <Authors>Etienne Charland, Vadim Beloborodov, Jeff Baxter</Authors>
     <Description>MPV implementation for .NET including OpenGL, Native and Software renderers</Description>
-    <Copyright>Copyright © 2023-2023 Etienne Charland</Copyright>
+    <Copyright>Copyright © 2023-2026 Etienne Charland</Copyright>
     <PackageProjectUrl>https://github.com/mysteryx93/LibMpv-OpenGL</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/mysteryx93/LibMpv-OpenGL</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>0.10.0-rc.1</Version>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="ConfigureAwait.Fody" Version="3.4.0" PrivateAssets="All" />
     <PackageReference Include="HanumanInstitute.Validators" Version="2.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 </Project>
