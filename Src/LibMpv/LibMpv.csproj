@@ -18,7 +18,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ConfigureAwait.Fody" Version="3.4.0" />
+    <PackageReference Include="ConfigureAwait.Fody" Version="3.4.0" PrivateAssets="All" />
     <PackageReference Include="HanumanInstitute.Validators" Version="2.1.2" />
   </ItemGroup>
 </Project>

@@ -16,6 +16,7 @@ public class SoftwareView : Control, IVideoView
     }
 
     private WriteableBitmap? _renderTarget;
+    private volatile bool _isIdle;
 
     // MpvContext property
     public static readonly DirectProperty<SoftwareView, MpvContext> MpvContextProperty = AvaloniaProperty.RegisterDirect<SoftwareView, MpvContext>(
@@ -29,12 +30,28 @@ public class SoftwareView : Control, IVideoView
 
     protected override void OnInitialized()
     {
+        MpvContext.Idle += OnMpvIdle;
+        MpvContext.StartFile += OnMpvStartFile;
         MpvContext.StartSoftwareRendering(this.UpdateVideoView);
         base.OnInitialized();
     }
 
+    private void OnMpvIdle(object? sender, EventArgs e)
+    {
+        _isIdle = true;
+        UpdateVideoView();
+    }
+
+    private void OnMpvStartFile(object? sender, MpvStartFileEventArgs e) => _isIdle = false;
+
     public override void Render(DrawingContext context)
     {
+        if (_isIdle)
+        {
+            context.FillRectangle(Brushes.Black, new Rect(Bounds.Size));
+            return;
+        }
+
         if (TopLevel.GetTopLevel(this) == null) { return; }
 
         var bitmapSize = GetPixelSize();
@@ -72,6 +89,8 @@ public class SoftwareView : Control, IVideoView
         // ReleaseUnmanagedResources();
         if (disposing)
         {
+            MpvContext.Idle -= OnMpvIdle;
+            MpvContext.StartFile -= OnMpvStartFile;
             MpvContext.Dispose();
             _renderTarget?.Dispose();
         }

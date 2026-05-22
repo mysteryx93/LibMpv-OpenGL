@@ -5,7 +5,7 @@ namespace HanumanInstitute.LibMpv;
 
 public unsafe partial class MpvContextBase
 {
-    private Dictionary<MpvEventId, MpvEventHandler> _eventHandlers;
+    private Dictionary<MpvEventId, MpvEventHandler> _eventHandlers = null!;
     private delegate void MpvEventHandler(MpvEvent e);
 
     public event EventHandler? Shutdown;

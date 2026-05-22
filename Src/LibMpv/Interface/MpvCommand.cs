@@ -11,7 +11,7 @@ public class MpvCommand<T>
         _cmd = cmd;
     }
 
-    public T Invoke(MpvCommandOptions? options = null) => (T)_context.RunCommandRet<T>(options, _cmd);
+    public T Invoke(MpvCommandOptions? options = null) => (T)_context.RunCommandRet<T>(options, _cmd)!;
 
     public async Task<T> InvokeAsync(MpvCommandOptions? options = null) => (T)(await _context.CommandAsync<T>(options, _cmd))!;
 }

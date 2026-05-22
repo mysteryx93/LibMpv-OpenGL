@@ -3,7 +3,7 @@
 public class ConstCharPtrMarshaler : ICustomMarshaler
 {
     private static readonly ConstCharPtrMarshaler Instance = new();
-    public object? MarshalNativeToManaged(IntPtr pNativeData) => Marshal.PtrToStringAnsi(pNativeData);
+    public object MarshalNativeToManaged(IntPtr pNativeData) => Marshal.PtrToStringAnsi(pNativeData) ?? string.Empty;
 
     public IntPtr MarshalManagedToNative(object managedObj) => IntPtr.Zero;
 

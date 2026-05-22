@@ -31,7 +31,7 @@ internal static class FlagExtensions
     public static string FormatMpvFlag<T>(this T flag)
         where T : Enum
     {
-        var value = flag?.ToString();
+        var value = flag?.ToString() ?? string.Empty;
         value = s_regexFlagName.Replace(value, x => $"{x.Value[0]}-{x.Value[1]}");
         return value.ToLowerInvariant();
     }
@@ -43,7 +43,7 @@ internal static class FlagExtensions
     /// <typeparam name="T">The type of flag enumeration.</typeparam>
     /// <param name="flags">The type of the flag array to normalize.</param>
     /// <returns>A string representation of the flags.</returns>
-    public static string? FormatMpvFlag<T>(this IEnumerable<T> flags)
+    public static string? FormatMpvFlag<T>(this IEnumerable<T>? flags)
         where T : Enum
     {
         if (flags == null || !flags.Any())

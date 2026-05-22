@@ -8,7 +8,7 @@ public class MarshalHelper : IDisposable
         if (ptr == IntPtr.Zero)
             throw new ArgumentException("Invalid pointer.");
 
-        return (TStruct)Marshal.PtrToStructure(ptr, typeof(TStruct));
+        return Marshal.PtrToStructure<TStruct>(ptr);
     }
     
     public static string PtrToStringUtf8OrEmpty(IntPtr ptr)

@@ -15,7 +15,7 @@ namespace HanumanInstitute.LibMpv.Avalonia;
 #if !ANDROID
 public class NativeView : NativeControlHost, IVideoView
 {
-    public static readonly StyledProperty<object> ContentProperty =
+    public static readonly StyledProperty<object?> ContentProperty =
         ContentControl.ContentProperty.AddOwner<NativeView>();
 
     private IPlatformHandle? _platformHandle;
@@ -38,7 +38,7 @@ public class NativeView : NativeControlHost, IVideoView
 
 
     [Content]
-    public object Content
+    public object? Content
     {
         get => GetValue(ContentProperty);
         set => SetValue(ContentProperty, value);
@@ -109,14 +109,19 @@ public class NativeView : NativeControlHost, IVideoView
                 ShowInTaskbar = false
             };
 
-            _disposables = new CompositeDisposable()
+            var parentWindow = TopLevel.GetTopLevel(this) as Window;
+            var disposables = new CompositeDisposable()
             {
                 _floatingContent.Bind(Window.ContentProperty, this.GetObservable(ContentProperty)),
                 this.GetObservable(ContentProperty).Skip(1).Subscribe(_ => UpdateOverlayPosition()),
                 this.GetObservable(BoundsProperty).Skip(1).Subscribe(_ => UpdateOverlayPosition()),
-                Observable.FromEventPattern(TopLevel.GetTopLevel(this) as Window, nameof(Window.PositionChanged))
-                    .Subscribe(_ => UpdateOverlayPosition())
             };
+            if (parentWindow != null)
+            {
+                disposables.Add(Observable.FromEventPattern(parentWindow, nameof(Window.PositionChanged))
+                    .Subscribe(_ => UpdateOverlayPosition()));
+            }
+            _disposables = disposables;
         }
 
         ShowNativeOverlay(IsEffectivelyVisible);
@@ -127,8 +132,8 @@ public class NativeView : NativeControlHost, IVideoView
         if (_floatingContent == null || _floatingContent.IsVisible == show)
             return;
 
-        if (show && _attached)
-            _floatingContent.Show(TopLevel.GetTopLevel(this) as Window);
+        if (show && _attached && TopLevel.GetTopLevel(this) is Window owner)
+            _floatingContent.Show(owner);
         else
             _floatingContent.Hide();
     }

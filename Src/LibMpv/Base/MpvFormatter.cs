@@ -4,8 +4,8 @@ namespace HanumanInstitute.LibMpv;
 
 public static unsafe class MpvFormatter
 {
-    
     /// <summary>Read the value of the given property.</summary>
+    /// <param name="ctx">Mpv Handle</param>
     /// <param name="name">The property name.</param>
     /// <typeparam name="T">The data type of the property to read.</typeparam>
     public static T GetProperty<T>(MpvHandle* ctx, string name)
@@ -29,6 +29,18 @@ public static unsafe class MpvFormatter
             case MpvFormat.OsdString:
                 var value = MpvApi.GetPropertyString(ctx, name);
                 return (T)(object)(value != null ? Utf8Marshaler.FromNative(value, Encoding.UTF8) : null)!;
+            case MpvFormat.None:
+                break;
+            case MpvFormat.Node:
+                break;
+            case MpvFormat.NodeArray:
+                break;
+            case MpvFormat.NodeMap:
+                break;
+            case MpvFormat.ByteArray:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
         return default!;
     }
@@ -67,6 +79,18 @@ public static unsafe class MpvFormatter
             case MpvFormat.OsdString:
                 MpvApi.SetPropertyString(ctx, name, value.ToStringInvariant()).CheckCode();
                 break;
+            case MpvFormat.None:
+                break;
+            case MpvFormat.Node:
+                break;
+            case MpvFormat.NodeArray:
+                break;
+            case MpvFormat.NodeMap:
+                break;
+            case MpvFormat.ByteArray:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
     }
 
@@ -94,6 +118,7 @@ public static unsafe class MpvFormatter
         }
     }
     
+    // ReSharper disable once ReturnTypeCanBeNotNullable
     public static T? Parse<T>(this MpvNode node)
     {
         var result = node.Format switch
@@ -103,7 +128,7 @@ public static unsafe class MpvFormatter
             MpvFormat.Int64 => node.U.Int64,
             MpvFormat.String => Utf8Marshaler.FromNative(node.U.String, Encoding.UTF8),
             MpvFormat.OsdString => Utf8Marshaler.FromNative(node.U.String, Encoding.UTF8),
-            _ => default
+            _ => null
         };
         return (T)result!;
     }

@@ -9,8 +9,8 @@ public delegate void UpdateCallback();
 public unsafe partial class MpvContextBase
 {
     private MpvRenderContext* _renderContext;
-    private MpvOpenglInitParamsGetProcAddress _getProcAddress;
-    private MpvRenderContextSetUpdateCallbackCallback _updateCallback;
+    private MpvOpenglInitParamsGetProcAddress _getProcAddress = null!;
+    private MpvRenderContextSetUpdateCallbackCallback _updateCallback = null!;
 
     public void StartOpenGlRendering(GetProcAddress getProcAddress, UpdateCallback updateCallback)
     {
