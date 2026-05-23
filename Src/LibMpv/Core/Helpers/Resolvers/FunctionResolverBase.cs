@@ -16,11 +16,14 @@ public abstract class FunctionResolverBase : IFunctionResolver
 
     public T? GetFunctionDelegate<T>(string libraryName, string functionName, bool throwOnError = true)
     {
-        //var nativeLibraryHandle = GetOrLoadLibrary(libraryName, throwOnError);
-
         try
         {
+            #if NET10_0
             var nativeLibraryHandle = NativeLibrary.Load(GetNativeLibraryName(MpvApi.DllName, MpvApi.LibraryVersionMap.First().Value), Assembly.GetExecutingAssembly(), DllImportSearchPath.AssemblyDirectory);
+            #elif NETSTANDARD2_0_OR_GREATER
+            var nativeLibraryHandle = GetOrLoadLibrary(libraryName, throwOnError);
+            #endif
+
             return GetFunctionDelegate<T>(nativeLibraryHandle, functionName, throwOnError);
         }
         catch (Exception e)
