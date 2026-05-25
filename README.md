@@ -36,7 +36,7 @@ Software rendering is also available as a fallback on all platforms.
 - Avalonia 12
 - libmpv 0.40.0 or greater
 
-Native libmpv binaries for Windows, macOS.
+Native libmpv binaries for Windows, macOS, linux.
 
 ## Getting Started
 
