@@ -22,11 +22,11 @@ An Avalonia 12 implementation is provided via the `LibMpv.Avalonia` package. Dro
 
 ### Renderers
 
-| Platform | Default Renderer |
-|----------|-----------------|
-| Windows  | Native          |
-| macOS    | OpenGL          |
-| Linux    | OpenGL          |
+| Platform | Default Renderer   | Zero-Copy GPU |
+|----------|--------------------|----------------|
+| Windows  | Native w/ AngleEGL | Yes            |
+| macOS    | OpenGL             | No             |
+| Linux    | OpenGL w/ EGL      | Yes            |
 
 Software rendering is also available as a fallback on all platforms.
 
@@ -49,7 +49,40 @@ dotnet add package LibMpv.Avalonia
 
 2. Add `MpvVideoView` to your Avalonia view and bind a `MpvContext` instance from your ViewModel.
 
-3. Use `MpvContext` to control playback:
+3. Configure per-OS rendering modes in your `AppBuilder`:
+
+```csharp
+using System.Runtime.InteropServices;
+using Avalonia.Win32;
+using Avalonia.X11;
+
+public static AppBuilder BuildAvaloniaApp()
+{
+    var builder = AppBuilder.Configure<App>().UsePlatformDetect();
+
+    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        builder.With(new Win32PlatformOptions
+        {
+            RenderingMode = [Win32RenderingMode.AngleEgl, Win32RenderingMode.Software]
+        });
+    else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        builder.With(new AvaloniaNativePlatformOptions
+        {
+            RenderingMode = [AvaloniaNativeRenderingMode.OpenGl, AvaloniaNativeRenderingMode.Software]
+        });
+    else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        builder.With(new X11PlatformOptions
+        {
+            RenderingMode = [X11RenderingMode.Egl, X11RenderingMode.Glx, X11RenderingMode.Software]
+        });
+
+    return builder.LogToTrace();
+}
+```
+
+Windows uses ANGLE (OpenGL ES over D3D11) which is required for the libmpv OpenGL render context to share the same GPU pipeline. macOS uses native OpenGL via Metal. Linux prefers EGL for Wayland compatibility, falling back to GLX for X11.
+
+4. Use `MpvContext` to control playback:
 
 ```csharp
 Mpv.LoadFile("path/to/video.mp4");
