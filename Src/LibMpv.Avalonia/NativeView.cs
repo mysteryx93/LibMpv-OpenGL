@@ -25,10 +25,15 @@ public class NativeView : NativeControlHost, IVideoView
     private IDisposable? _disposables;
     private IDisposable? _isEffectivelyVisibleSub;
 
+    private sealed class NativeMpvContext : MpvContext
+    {
+        protected override void OnPreInitialize() => SetOptionString("hwdec", "auto");
+    }
+
     // MpvContext property
     public static readonly DirectProperty<NativeView, MpvContext> MpvContextProperty = AvaloniaProperty.RegisterDirect<NativeView, MpvContext>(
         nameof(MpvContext), o => o.MpvContext, defaultBindingMode: BindingMode.OneWayToSource);
-    public MpvContext MpvContext { get; } = new();
+    public MpvContext MpvContext { get; } = new NativeMpvContext();
     
     static NativeView()
     {

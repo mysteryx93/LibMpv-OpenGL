@@ -45,3 +45,4 @@ build/tools/*
 
 # GhostDoc
 *.GhostDoc.xml
+Src/Sample.LibMpv.Avalonia/Sample.LibMpv.Avalonia.Desktop/out/
