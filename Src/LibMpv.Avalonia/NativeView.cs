@@ -53,15 +53,19 @@ public class NativeView : NativeControlHost, IVideoView
     {
         _platformHandle = base.CreateNativeControlCore(parent);
         MpvContext.StartNativeRendering(_platformHandle.Handle.ToInt64());
+        MpvContext.Tick += OnMpvTick;
         return _platformHandle;
     }
 
     protected override void DestroyNativeControlCore(IPlatformHandle control)
     {
+        MpvContext.Tick -= OnMpvTick;
         MpvContext.StopRendering();
         base.DestroyNativeControlCore(control);
         _platformHandle = null;
     }
+
+    private void OnMpvTick(object? sender, EventArgs e) => MpvContext.InvokePreRender();
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {

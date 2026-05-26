@@ -70,6 +70,7 @@ public class SoftwareView : Control, IVideoView
 #else
             var pix = "bgra";
 #endif
+            MpvContext.InvokePreRender();
             MpvContext.SoftwareRender(lockedBitmap.Size.Width, lockedBitmap.Size.Height, lockedBitmap.Address, pix);
         }
         context.DrawImage(this._renderTarget, new Rect(0, 0, _renderTarget.PixelSize.Width, _renderTarget.PixelSize.Height));

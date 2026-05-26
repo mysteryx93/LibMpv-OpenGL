@@ -507,14 +507,18 @@ public partial class MpvContext
     /// <param name="stride">Gives the width in bytes in memory.</param>
     /// <param name="offset">The byte offset of the first pixel in the source file. (The current implementation always mmap's the whole file from position 0 to the end of the image, so large offsets should be avoided. Before mpv 0.8.0, the offset was actually passed directly to mmap, but it was changed to make using it easier.)</param>
     /// <param name="fmt">String identifying the image format. Currently, only bgra is defined. This format has 4 bytes per pixels, with 8 bits per component. The least significant 8 bits are blue, and the most significant 8 bits are alpha (in little endian, the components are B-G-R-A, with B as first byte). This uses premultiplied alpha: every color component is already multiplied with the alpha component. This means the numeric value of each component is equal to or smaller than the alpha component. (Violating this rule will lead to different results with different VOs: numeric overflows resulting from blending broken alpha values is considered something that shouldn't happen, and consequently implementations don't ensure that you get predictable behavior in this case.)</param>
-    public MpvCommand ImageOverlayAdd(int id, int x, int y, int w, int h, string file, int stride, int offset = 0, string fmt = "bgra") =>
+    public MpvCommand ImageOverlayAdd(int id, int x, int y, string file, int w, int h, int stride, int offset = 0, string fmt = "bgra") =>
         C("overlay-add",
             id.CheckRange(nameof(id), min: 0, max: 63),
             x, y,
-            w.CheckRange(nameof(w), min: 0),
-            h.CheckRange(nameof(h), min: 0),
             file.CheckNotNullOrEmpty(nameof(file)),
-            stride.CheckRange(nameof(stride), min: 0), offset, fmt);
+            offset, fmt,
+            w.CheckRange(nameof(w), min: 1),
+            h.CheckRange(nameof(h), min: 1),
+            stride.CheckRange(nameof(stride), min: 1));
+
+    public MpvCommand ImageOverlayAdd(int id, int x, int y, IntPtr data, int w, int h, int stride, string fmt = "bgra") =>
+        ImageOverlayAdd(id, x, y, $"&{data.ToInt64()}", w, h, stride, 0, fmt);
 
     /// <summary>
     /// Removes an overlay added with overlay-add and the same ID. Does nothing if no overlay with this ID exists.

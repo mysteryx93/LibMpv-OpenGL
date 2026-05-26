@@ -64,6 +64,7 @@ public class OpenGlView : OpenGlControlBase, IVideoView
         if (MpvContext.IsCustomRendering())
         {
             var size = GetPixelSize();
+            MpvContext.InvokePreRender();
             MpvContext.OpenGlRender(size.Width, size.Height, fbo, 1);
         }
     }

@@ -13,7 +13,32 @@ public unsafe partial class MpvContextBase
     public event EventHandler<MpvEndFileEventArgs>? EndFile;
     public event EventHandler? FileLoaded;
     public event EventHandler? Idle;
-    public event EventHandler? Tick;
+
+    private EventHandler? _tick;
+    private readonly object _tickLock = new();
+    public event EventHandler? Tick
+    {
+        add
+        {
+            lock (_tickLock)
+            {
+                var wasEmpty = _tick == null;
+                _tick += value;
+                if (wasEmpty && _tick != null && !_disposed)
+                    RequestEvent(MpvEventId.EventTick, true);
+            }
+        }
+        remove
+        {
+            lock (_tickLock)
+            {
+                _tick -= value;
+                if (_tick == null && !_disposed)
+                    RequestEvent(MpvEventId.EventTick, false);
+            }
+        }
+    }
+
     public event EventHandler? VideoReconfig;
     public event EventHandler? AudioReconfig;
     public event EventHandler? SeekRaised;
@@ -87,6 +112,15 @@ public unsafe partial class MpvContextBase
         QueueOverflow?.Invoke(this, EventArgs.Empty);
     }
 
+    /// <summary>
+    /// Fires immediately before each video frame is composited and output.
+    /// For Software and OpenGL renderers this is zero-lag (fires before mpv_render_context_render).
+    /// For the Native renderer this fires after the previous frame via Tick (one frame behind).
+    /// Update overlays here for the tightest possible alignment with the rendered frame.
+    /// </summary>
+    public event EventHandler? PreRender;
+    public void InvokePreRender() => PreRender?.Invoke(this, EventArgs.Empty);
+
     private void PlaybackRestartHandler(MpvEvent e)
     {
         PlaybackRestart?.Invoke(this, EventArgs.Empty);
@@ -109,7 +143,7 @@ public unsafe partial class MpvContextBase
 
     private void TickHandler(MpvEvent e)
     {
-        Tick?.Invoke(this, EventArgs.Empty);
+        _tick?.Invoke(this, EventArgs.Empty);
     }
 
     private void IdleHandler(MpvEvent e)
