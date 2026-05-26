@@ -31,10 +31,6 @@
     <ProjectReference Include="..\LibMpv\LibMpv.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
-  </ItemGroup>
-
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-android'">
     <PackageReference Include="Avalonia.Android" Version="12.0.3" />
   </ItemGroup>

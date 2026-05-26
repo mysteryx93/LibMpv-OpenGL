@@ -86,11 +86,8 @@ public partial class MpvContextBase
     /// <param name="e">The message received from the player.</param>
     private void Command_Reply(MpvCommandReplyEventArgs e)
     {
-        if (e.ErrorCode != 0) { return; }
-        
         if (e.RequestId > 0)
         {
-            // Add to list of responses to be retrieved by QueryId.
             lock (_responses)
             {
                 _responses.Add(e);
@@ -98,18 +95,15 @@ public partial class MpvContextBase
             _waitResponse.Set();
         }
     }
-    
+
     /// <summary>
     /// Occurs when a full message has been received.
     /// </summary>
     /// <param name="e">The message received from the player.</param>
     private void GetProperty_Reply(MpvPropertyEventArgs e)
     {
-        if (e.ErrorCode != 0) { return; }
-        
         if (e.RequestId > 0)
         {
-            // Add to list of responses to be retrieved by QueryId.
             lock (_responses)
             {
                 _responses.Add(e);
@@ -117,18 +111,15 @@ public partial class MpvContextBase
             _waitResponse.Set();
         }
     }
-    
+
     /// <summary>
     /// Occurs when a full message has been received.
     /// </summary>
     /// <param name="e">The message received from the player.</param>
     private void SetProperty_Reply(MpvEventArgs e)
     {
-        if (e.ErrorCode != 0) { return; }
-        
         if (e.RequestId > 0)
         {
-            // Add to list of responses to be retrieved by QueryId.
             lock (_responses)
             {
                 _responses.Add(e);

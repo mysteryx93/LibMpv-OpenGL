@@ -11,16 +11,17 @@ public static unsafe class MpvFormatter
     public static T GetProperty<T>(MpvHandle* ctx, string name)
     {
         var format = GetMpvFormat<T>();
+        var targetType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
         switch (format)
         {
             case MpvFormat.Int64:
                 var vLong = 0L;
                 MpvApi.GetProperty(ctx, name, MpvFormat.Int64, &vLong).CheckCode();
-                return (T)(object)vLong;
+                return (T)Convert.ChangeType(vLong, targetType);
             case MpvFormat.Double:
                 var vDouble = 0.0;
                 MpvApi.GetProperty(ctx, name, MpvFormat.Double, &vDouble).CheckCode();
-                return (T)(object)vDouble;
+                return (T)Convert.ChangeType(vDouble, targetType);
             case MpvFormat.Flag:
                 var vBool = 0;
                 MpvApi.GetProperty(ctx, name, MpvFormat.Flag, &vBool).CheckCode();

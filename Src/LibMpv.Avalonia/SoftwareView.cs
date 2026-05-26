@@ -53,6 +53,7 @@ public class SoftwareView : Control, IVideoView
         }
 
         if (TopLevel.GetTopLevel(this) == null) { return; }
+        if (Bounds.Width < 1 || Bounds.Height < 1) { return; }
 
         var bitmapSize = GetPixelSize();
             
@@ -76,7 +77,8 @@ public class SoftwareView : Control, IVideoView
 
     private PixelSize GetPixelSize()
     {
-        return new PixelSize((int)Bounds.Width, (int)Bounds.Height);
+        var scaling = TopLevel.GetTopLevel(this)?.RenderScaling ?? 1.0;
+        return new PixelSize(Math.Max(1, (int)(Bounds.Width * scaling)), Math.Max(1, (int)(Bounds.Height * scaling)));
     }
 
     private void UpdateVideoView()
