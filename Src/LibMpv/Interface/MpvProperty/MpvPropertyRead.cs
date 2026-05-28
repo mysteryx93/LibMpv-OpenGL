@@ -48,7 +48,7 @@ public class MpvPropertyRead<T, TRaw> : MpvProperty<T?, TRaw>
     public async Task<T?> GetAsync(MpvAsyncOptions? options = null)
     {
         var result = await Mpv.GetPropertyAsync<TRaw>(PropertyName, options);
-        return ParseValue(result);
+        return result is TRaw value ? ParseValue(value) : default;
     }
 
     private ulong _propertyChangeId = 0;
@@ -76,7 +76,7 @@ public class MpvPropertyRead<T, TRaw> : MpvProperty<T?, TRaw>
         }
     }
 
-    private void MpvContext_PropertyChanged(object sender, MpvPropertyEventArgs e)
+    private void MpvContext_PropertyChanged(object? sender, MpvPropertyEventArgs e)
     {
         if (e.RequestId == _propertyChangeId)
         {
@@ -136,7 +136,7 @@ public class MpvPropertyReadRef<T, TRaw> : MpvProperty<T?, TRaw>
     public virtual async Task<T?> GetAsync(MpvAsyncOptions? options = null)
     {
         var result = await Mpv.GetPropertyAsync<TRaw>(PropertyName, options);
-        return ParseValue(result);
+        return result is TRaw value ? ParseValue(value) : default;
     }
     
     
@@ -165,7 +165,7 @@ public class MpvPropertyReadRef<T, TRaw> : MpvProperty<T?, TRaw>
         }
     }
 
-    private void MpvContext_PropertyChanged(object sender, MpvPropertyEventArgs e)
+    private void MpvContext_PropertyChanged(object? sender, MpvPropertyEventArgs e)
     {
         if (e.RequestId == _propertyChangeId)
         {

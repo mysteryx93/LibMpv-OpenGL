@@ -1,8 +1,8 @@
-namespace HanumanInstitute.LibMpv.Core;
+﻿namespace HanumanInstitute.LibMpv.Core;
 
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-public unsafe delegate void* MpvOpenglInitParamsGetProcAddress (void* ctx,     
-    #if NETSTANDARD2_1_OR_GREATER
+public unsafe delegate void* MpvOpenglInitParamsGetProcAddress (void* ctx,
+#if NET5_0_OR_GREATER
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     #else
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8Marshaler))]

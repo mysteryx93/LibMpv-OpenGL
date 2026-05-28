@@ -4,23 +4,24 @@ namespace HanumanInstitute.LibMpv;
 
 public static unsafe class MpvFormatter
 {
-    
     /// <summary>Read the value of the given property.</summary>
+    /// <param name="ctx">Mpv Handle</param>
     /// <param name="name">The property name.</param>
     /// <typeparam name="T">The data type of the property to read.</typeparam>
     public static T GetProperty<T>(MpvHandle* ctx, string name)
     {
         var format = GetMpvFormat<T>();
+        var targetType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
         switch (format)
         {
             case MpvFormat.Int64:
                 var vLong = 0L;
                 MpvApi.GetProperty(ctx, name, MpvFormat.Int64, &vLong).CheckCode();
-                return (T)(object)vLong;
+                return (T)Convert.ChangeType(vLong, targetType);
             case MpvFormat.Double:
                 var vDouble = 0.0;
                 MpvApi.GetProperty(ctx, name, MpvFormat.Double, &vDouble).CheckCode();
-                return (T)(object)vDouble;
+                return (T)Convert.ChangeType(vDouble, targetType);
             case MpvFormat.Flag:
                 var vBool = 0;
                 MpvApi.GetProperty(ctx, name, MpvFormat.Flag, &vBool).CheckCode();
@@ -29,6 +30,18 @@ public static unsafe class MpvFormatter
             case MpvFormat.OsdString:
                 var value = MpvApi.GetPropertyString(ctx, name);
                 return (T)(object)(value != null ? Utf8Marshaler.FromNative(value, Encoding.UTF8) : null)!;
+            case MpvFormat.None:
+                break;
+            case MpvFormat.Node:
+                break;
+            case MpvFormat.NodeArray:
+                break;
+            case MpvFormat.NodeMap:
+                break;
+            case MpvFormat.ByteArray:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
         return default!;
     }
@@ -67,6 +80,18 @@ public static unsafe class MpvFormatter
             case MpvFormat.OsdString:
                 MpvApi.SetPropertyString(ctx, name, value.ToStringInvariant()).CheckCode();
                 break;
+            case MpvFormat.None:
+                break;
+            case MpvFormat.Node:
+                break;
+            case MpvFormat.NodeArray:
+                break;
+            case MpvFormat.NodeMap:
+                break;
+            case MpvFormat.ByteArray:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
     }
 
@@ -94,6 +119,7 @@ public static unsafe class MpvFormatter
         }
     }
     
+    // ReSharper disable once ReturnTypeCanBeNotNullable
     public static T? Parse<T>(this MpvNode node)
     {
         var result = node.Format switch
@@ -103,39 +129,34 @@ public static unsafe class MpvFormatter
             MpvFormat.Int64 => node.U.Int64,
             MpvFormat.String => Utf8Marshaler.FromNative(node.U.String, Encoding.UTF8),
             MpvFormat.OsdString => Utf8Marshaler.FromNative(node.U.String, Encoding.UTF8),
-            _ => default
+            _ => null
         };
         return (T)result!;
     }
 
-    public static T? ParseData<T>(IntPtr data)
+    /// <summary>
+    /// Copies and parses native event property data immediately while the mpv event buffer is still valid.
+    /// Must be called within the event handler before the next mpv_wait_event call.
+    /// </summary>
+    public static object? ParseDataEagerly(MpvFormat format, IntPtr data)
     {
-        object? value = null;
-        var format = GetMpvFormat<T>();
-        if (data == IntPtr.Zero)
+        if (data == IntPtr.Zero) return null;
+        return format switch
         {
-            return default;
-        }
-        else if (format == MpvFormat.String)
-        {
-            value = Utf8Marshaler.FromNative(data);
-            // value = MarshalHelper.PtrToStringUtf8OrNull((nint) property.Data);
-        }
-        else if (format == MpvFormat.Int64)
-        {
-            value = Marshal.ReadInt64(data);
-        }
-        else if (format == MpvFormat.Flag)
-        {
-            var flag = Marshal.ReadInt32(data);
-            value = flag == 1;
-        }
-        else if (format == MpvFormat.Double)
-        {
-            var doubleBytes = new byte[sizeof(double)];
-            Marshal.Copy(data, doubleBytes, 0, sizeof(double));
-            value = BitConverter.ToDouble(doubleBytes, 0);
-        }
-        return (T?)value;
+            MpvFormat.Int64 => *(long*)data,
+            MpvFormat.Flag => *(int*)data == 1,
+            MpvFormat.Double => *(double*)data,
+            // data is char** — dereference once to get the char*, then marshal to managed string
+            MpvFormat.String => Utf8Marshaler.FromNative(Marshal.ReadIntPtr(data)),
+            _ => null
+        };
+    }
+
+    public static T? ParseData<T>(object? data)
+    {
+        if (data is null) return default;
+        if (data is T direct) return direct;
+        var type = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
+        return (T?)Convert.ChangeType(data, type);
     }
 }

@@ -29,7 +29,8 @@ public unsafe partial class MpvContextBase : IDisposable
 #if ANDROID
         InitAndroid.InitJvm();
 #endif
-
+        _ = Ctx; // Force handle creation before OnPreInitialize
+        OnPreInitialize();
         Initialize();
         InitEventHandlers();
 
@@ -41,6 +42,9 @@ public unsafe partial class MpvContextBase : IDisposable
         };
         _eventLoop.Start();
     }
+
+    /// <summary>Called after mpv_create() but before mpv_initialize(). Override to set pre-init options.</summary>
+    protected virtual void OnPreInitialize() { }
 
     ~MpvContextBase()
     {
@@ -63,8 +67,8 @@ public unsafe partial class MpvContextBase : IDisposable
             {
                 disposable.Dispose();
             }
-            MpvApi.TerminateDestroy(Ctx);
-            _disposed = true;
+            _disposed = true;           // Set before TerminateDestroy: the blocking mpv shutdown
+            MpvApi.TerminateDestroy(_ctx); // pumps the Win32 message loop, which can re-enter
         }
     }
 }

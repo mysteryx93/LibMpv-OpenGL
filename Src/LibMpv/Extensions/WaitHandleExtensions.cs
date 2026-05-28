@@ -11,14 +11,14 @@ internal static class WaitHandleExtensions
             var tcs = new TaskCompletionSource<bool>();
             registeredHandle = ThreadPool.RegisterWaitForSingleObject(
                 handle,
-                (state, timedOut) => ((TaskCompletionSource<bool>)state).TrySetResult(!timedOut),
+                (state, timedOut) => ((TaskCompletionSource<bool>)state!).TrySetResult(!timedOut),
                 tcs,
                 millisecondsTimeout,
                 true);
             if (cancellationToken.HasValue)
             {
                 tokenRegistration = cancellationToken.Value.Register(
-                    state => ((TaskCompletionSource<bool>)state).TrySetCanceled(),
+                    state => ((TaskCompletionSource<bool>)state!).TrySetCanceled(),
                     tcs);
             }
             return await tcs.Task;

@@ -9,7 +9,6 @@ namespace HanumanInstitute.LibMpv.Avalonia;
 public class MpvView : Control
 {
     private IVideoView? _view;
-    public event EventHandler? ViewInitialized;
 
     // MpvContext property
     public static readonly DirectProperty<MpvView, MpvContext?> MpvContextProperty = AvaloniaProperty.RegisterDirect<MpvView, MpvContext?>(
@@ -22,7 +21,7 @@ public class MpvView : Control
     public static readonly DirectProperty<MpvView, VideoRenderer> RendererProperty =
         AvaloniaProperty.RegisterDirect<MpvView, VideoRenderer>(
             nameof(Renderer), o => o.Renderer, (o, v) => o.Renderer = v);
-    private VideoRenderer _renderer = Avalonia.VideoRenderer.Auto;
+    private VideoRenderer _renderer = VideoRenderer.Auto;
     /// <summary>
     /// Gets or sets the video renderer.
     /// </summary>
@@ -65,9 +64,8 @@ public class MpvView : Control
 #if ANDROID
         return new NativeView();
 #endif
-        return RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
-            new NativeView() :
-            new OpenGlView();
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return new NativeView();
+        return new OpenGlView();
     }
 
     private void StopRenderer()
@@ -75,6 +73,9 @@ public class MpvView : Control
         if (_view == null) { return; }
 
         var oldContext = MpvContext;
+        // Hide synchronously before removal so the native Win32 child window stops
+        // intercepting input immediately rather than waiting for the async destruction.
+        ((Control)_view).IsVisible = false;
         this.VisualChildren.Remove((Visual)_view);
         _view?.Dispose();
         _view = null;

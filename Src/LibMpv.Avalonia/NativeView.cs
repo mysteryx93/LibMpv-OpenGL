@@ -15,20 +15,25 @@ namespace HanumanInstitute.LibMpv.Avalonia;
 #if !ANDROID
 public class NativeView : NativeControlHost, IVideoView
 {
-    public static readonly StyledProperty<object> ContentProperty =
+    public static readonly StyledProperty<object?> ContentProperty =
         ContentControl.ContentProperty.AddOwner<NativeView>();
 
     private IPlatformHandle? _platformHandle;
 
     private bool _attached;
     private Window? _floatingContent;
-    private IDisposable _disposables;
-    private IDisposable _isEffectivellyVisibleSub;
+    private IDisposable? _disposables;
+    private IDisposable? _isEffectivelyVisibleSub;
+
+    private sealed class NativeMpvContext : MpvContext
+    {
+        protected override void OnPreInitialize() => SetOptionString("hwdec", "auto");
+    }
 
     // MpvContext property
     public static readonly DirectProperty<NativeView, MpvContext> MpvContextProperty = AvaloniaProperty.RegisterDirect<NativeView, MpvContext>(
         nameof(MpvContext), o => o.MpvContext, defaultBindingMode: BindingMode.OneWayToSource);
-    public MpvContext MpvContext { get; } = new();
+    public MpvContext MpvContext { get; } = new NativeMpvContext();
     
     static NativeView()
     {
@@ -38,7 +43,7 @@ public class NativeView : NativeControlHost, IVideoView
 
 
     [Content]
-    public object Content
+    public object? Content
     {
         get => GetValue(ContentProperty);
         set => SetValue(ContentProperty, value);
@@ -48,15 +53,19 @@ public class NativeView : NativeControlHost, IVideoView
     {
         _platformHandle = base.CreateNativeControlCore(parent);
         MpvContext.StartNativeRendering(_platformHandle.Handle.ToInt64());
+        MpvContext.Tick += OnMpvTick;
         return _platformHandle;
     }
 
     protected override void DestroyNativeControlCore(IPlatformHandle control)
     {
+        MpvContext.Tick -= OnMpvTick;
         MpvContext.StopRendering();
         base.DestroyNativeControlCore(control);
         _platformHandle = null;
     }
+
+    private void OnMpvTick(object? sender, EventArgs e) => MpvContext.InvokePreRender();
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
@@ -66,7 +75,7 @@ public class NativeView : NativeControlHost, IVideoView
 
         InitializeNativeOverlay();
 
-        _isEffectivellyVisibleSub = this.GetVisualAncestors().OfType<Control>()
+        _isEffectivelyVisibleSub = this.GetVisualAncestors().OfType<Control>()
             .Select(v => v.GetObservable(IsVisibleProperty))
             .CombineLatest(v => !v.Any(o => !o))
             .DistinctUntilChanged()
@@ -77,7 +86,7 @@ public class NativeView : NativeControlHost, IVideoView
     {
         base.OnDetachedFromVisualTree(e);
 
-        _isEffectivellyVisibleSub?.Dispose();
+        _isEffectivelyVisibleSub?.Dispose();
 
         ShowNativeOverlay(false);
 
@@ -102,21 +111,26 @@ public class NativeView : NativeControlHost, IVideoView
         {
             _floatingContent = new Window
             {
-                SystemDecorations = SystemDecorations.None,
+                WindowDecorations = WindowDecorations.None,
                 TransparencyLevelHint = new[] { WindowTransparencyLevel.Transparent },
                 Background = Brushes.Transparent,
                 SizeToContent = SizeToContent.WidthAndHeight,
                 ShowInTaskbar = false
             };
 
-            _disposables = new CompositeDisposable()
+            var parentWindow = TopLevel.GetTopLevel(this) as Window;
+            var disposables = new CompositeDisposable()
             {
                 _floatingContent.Bind(Window.ContentProperty, this.GetObservable(ContentProperty)),
                 this.GetObservable(ContentProperty).Skip(1).Subscribe(_ => UpdateOverlayPosition()),
                 this.GetObservable(BoundsProperty).Skip(1).Subscribe(_ => UpdateOverlayPosition()),
-                Observable.FromEventPattern(VisualRoot, nameof(Window.PositionChanged))
-                    .Subscribe(_ => UpdateOverlayPosition())
             };
+            if (parentWindow != null)
+            {
+                disposables.Add(Observable.FromEventPattern(parentWindow, nameof(Window.PositionChanged))
+                    .Subscribe(_ => UpdateOverlayPosition()));
+            }
+            _disposables = disposables;
         }
 
         ShowNativeOverlay(IsEffectivelyVisible);
@@ -127,8 +141,8 @@ public class NativeView : NativeControlHost, IVideoView
         if (_floatingContent == null || _floatingContent.IsVisible == show)
             return;
 
-        if (show && _attached)
-            _floatingContent.Show(VisualRoot as Window);
+        if (show && _attached && TopLevel.GetTopLevel(this) is Window owner)
+            _floatingContent.Show(owner);
         else
             _floatingContent.Hide();
     }
@@ -204,7 +218,7 @@ public class NativeView : NativeControlHost, IVideoView
         if (disposing)
         {
             _disposables?.Dispose();
-            _isEffectivellyVisibleSub?.Dispose();
+            _isEffectivelyVisibleSub?.Dispose();
             MpvContext.Dispose();
         }
     }

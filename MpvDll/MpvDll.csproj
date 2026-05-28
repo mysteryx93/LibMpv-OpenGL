@@ -1,38 +1,54 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <RuntimeIdentifiers>win-x64;win-x86;linux-x64;osx-x64;android-arm64;android-x64</RuntimeIdentifiers>
+    <TargetFramework>net10.0</TargetFramework>
+    <RuntimeIdentifiers>win-x64;win-x86;linux-x64;osx-x64;osx-arm64;android-arm64;android-x64</RuntimeIdentifiers>
     <RootNamespace>Mpv</RootNamespace>
-  </PropertyGroup>
-
+    <Configurations>Debug;Release;Debug-osx</Configurations>
+  </PropertyGroup>    
   <ItemGroup Condition="'$(RuntimeIdentifier)'=='win-x64' or '$(RuntimeIdentifier)'==''">
     <Content Include="win-x64\**">
       <Link>%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup Condition="'$(RuntimeIdentifier)'=='win-x86'">
     <Content Include="win-x86\**">
       <Link>%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+	<ItemGroup Condition="'$(RuntimeIdentifier)'=='osx-x64'">
+		<Content Include="osx-x64\**">
+			<Link>%(Filename)%(Extension)</Link>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+	<ItemGroup Condition="'$(RuntimeIdentifier)'=='osx-arm64'">
+		<Content Include="osx-arm64\**">
+			<Link>%(Filename)%(Extension)</Link>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
   <ItemGroup Condition="'$(RuntimeIdentifier)'=='android-arm64'">
     <Content Include="android-arm64\**">
       <Link>%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup Condition="'$(RuntimeIdentifier)'=='android-arm'">
     <Content Include="android-arm\**">
       <Link>%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup Condition="'$(RuntimeIdentifier)'=='android-x64' or '$(RuntimeIdentifier)'==''">
+  <ItemGroup Condition="'$(RuntimeIdentifier)'=='android-x64'">
     <AndroidNativeLibrary Include="android-x64\**">
       <Link>%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AndroidNativeLibrary>
-  </ItemGroup>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </AndroidNativeLibrary>      
+  </ItemGroup> 
+    
+    <ItemGroup>
+        <PackageReference Include="Dotnet.Bundle" Version="0.9.13" />
+    </ItemGroup>
 </Project>

@@ -14,8 +14,16 @@ public abstract class FunctionResolverBase : IFunctionResolver
 
     public T? GetFunctionDelegate<T>(string libraryName, string functionName, bool throwOnError = true)
     {
-        var nativeLibraryHandle = GetOrLoadLibrary(libraryName, throwOnError);
-        return GetFunctionDelegate<T>(nativeLibraryHandle, functionName, throwOnError);
+        try
+        {
+            var nativeLibraryHandle = GetOrLoadLibrary(libraryName, throwOnError);
+            return GetFunctionDelegate<T>(nativeLibraryHandle, functionName, throwOnError);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 
     public T? GetFunctionDelegate<T>(IntPtr nativeLibraryHandle, string functionName, bool throwOnError)
@@ -31,7 +39,7 @@ public abstract class FunctionResolverBase : IFunctionResolver
             return default;
         }
 
-#if NETSTANDARD2_0_OR_GREATER
+#if NETSTANDARD2_0_OR_GREATER || NET10_0
         try
         {
             return Marshal.GetDelegateForFunctionPointer<T>(functionPointer);
@@ -83,7 +91,7 @@ public abstract class FunctionResolverBase : IFunctionResolver
             else if (throwOnError)
             {
                 throw new DllNotFoundException(
-                    $"Unable to load DLL '{libraryName}.{version} under {MpvApi.RootPath}': The specified module could not be found.");
+                    $"Unable to load DLL '{libraryName}.{version} [{nativeLibraryName}] under {MpvApi.RootPath}': The specified module could not be found.");
             }
 
             return ptr;

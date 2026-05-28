@@ -1,4 +1,5 @@
-﻿using HanumanInstitute.LibMpv.Core;
+﻿using System.Collections.Generic;
+using HanumanInstitute.LibMpv.Core;
 using MpvApi = HanumanInstitute.LibMpv.Core.MpvApi;
 
 namespace HanumanInstitute.LibMpv;
@@ -9,10 +10,11 @@ public delegate void UpdateCallback();
 public unsafe partial class MpvContextBase
 {
     private MpvRenderContext* _renderContext;
-    private MpvOpenglInitParamsGetProcAddress _getProcAddress;
-    private MpvRenderContextSetUpdateCallbackCallback _updateCallback;
+    private MpvOpenglInitParamsGetProcAddress _getProcAddress = null!;
+    private MpvRenderContextSetUpdateCallbackCallback _updateCallback = null!;
 
-    public void StartOpenGlRendering(GetProcAddress getProcAddress, UpdateCallback updateCallback)
+    public void StartOpenGlRendering(GetProcAddress getProcAddress, UpdateCallback updateCallback,
+        nint x11Display = 0, nint waylandDisplay = 0)
     {
         if (_disposed) { return; }
         StopRendering();
@@ -22,7 +24,7 @@ public unsafe partial class MpvContextBase
 
         using var marshalHelper = new MarshalHelper();
 
-        var parameters = new MpvRenderParam[]
+        var parameters = new List<MpvRenderParam>
         {
             new()
             {
@@ -37,20 +39,22 @@ public unsafe partial class MpvContextBase
                     GetProcAddress = _getProcAddress,
                     GetProcAddressCtx = null
                 })
-            },
-            new()
-            {
-                Type = MpvRenderParamType.AdvancedControl,
-                Data = (void*) marshalHelper.AllocHGlobalValue(0)
-            },
-            new()
-            {
-                Type = MpvRenderParamType.Invalid,
-                Data = null
             }
         };
 
-        fixed (MpvRenderParam* parametersPtr = parameters)
+        // X11 Display* and wl_display* allow mpv to set up zero-copy VAAPI/VDPAU
+        // interop on Linux. Without them mpv falls back to DRM-based device discovery,
+        // which still works but is less reliable on multi-GPU systems.
+        if (x11Display != 0)
+            parameters.Add(new() { Type = MpvRenderParamType.X11Display, Data = (void*) x11Display });
+        if (waylandDisplay != 0)
+            parameters.Add(new() { Type = MpvRenderParamType.WaylandDisplay, Data = (void*) waylandDisplay });
+
+        parameters.Add(new() { Type = MpvRenderParamType.AdvancedControl, Data = (void*) marshalHelper.AllocHGlobalValue(0) });
+        parameters.Add(new() { Type = MpvRenderParamType.Invalid, Data = null });
+
+        var paramArray = parameters.ToArray();
+        fixed (MpvRenderParam* parametersPtr = paramArray)
         {
             RenderContextCreate(parametersPtr);
         }
@@ -190,6 +194,7 @@ public unsafe partial class MpvContextBase
 
     public void StopRendering()
     {
+        if (_disposed) return;
         RunCommand(null, "stop");
         if (_renderContext != null)
         {

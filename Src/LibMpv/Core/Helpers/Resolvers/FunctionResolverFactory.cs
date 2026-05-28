@@ -1,4 +1,6 @@
-﻿namespace HanumanInstitute.LibMpv.Core;
+﻿using System.Reflection;
+
+namespace HanumanInstitute.LibMpv.Core;
 
 public static class FunctionResolverFactory
 {
@@ -11,12 +13,21 @@ public static class FunctionResolverFactory
     {
         switch (GetPlatformId())
         {
-            case PlatformID.MacOSX:
-                return new MacFunctionResolver();
+            //case PlatformID.MacOSX:
+            //    return new MacFunctionResolver();
             case PlatformID.Unix:
                 {
-                    var isAndroid = RuntimeInformation.IsOSPlatform(OSPlatform.Create("ANDROID"));
-                    return isAndroid ? new AndroidFunctionResolver() : new LinuxFunctionResolver();
+                    //OSX Is returned as "Unix" now
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                    {
+                        
+                        return new MacFunctionResolver();
+                    }
+                    else
+                    {
+                        var isAndroid = RuntimeInformation.IsOSPlatform(OSPlatform.Create("ANDROID"));
+                        return isAndroid ? new AndroidFunctionResolver() : new LinuxFunctionResolver();
+                    }
                 }
             case PlatformID.Win32NT:
                 return new WindowsFunctionResolver();

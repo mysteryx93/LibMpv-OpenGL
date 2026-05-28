@@ -28,7 +28,9 @@ public unsafe partial class MpvContextBase
         var cmd = AddCommandPrefixes(options, args);
         using var helper = new MarshalHelper();
         var val = (byte**)helper.CStringArrayForManagedUtf8StringArray(cmd);
-        MpvApi.Command(Ctx, val).CheckCode();
+        var error = MpvApi.Command(Ctx, val);
+        if (GetThrowOnErrorOption(options))
+            error.CheckCode();
     }
 
     /// <summary>Send a command to the player. Commands are the same as those used in input.conf, except that this function takes parameters in a pre-split form.</summary>

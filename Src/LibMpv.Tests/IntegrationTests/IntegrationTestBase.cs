@@ -1,33 +1,31 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
 using HanumanInstitute.Validators;
-using Xunit.Abstractions;
+using Xunit;
 
 namespace HanumanInstitute.LibMpv.Tests.IntegrationTests;
 
 public class IntegrationTestBase : IDisposable
 {
-    public IntegrationTestBase(ITestOutputHelper output)
+    protected IntegrationTestBase(ITestOutputHelper output)
     {
         Output = output;
     }
 
     public ITestOutputHelper Output { get; set; }
 
-    public MpvContext Mpv { get; } = new() { LogEnabled = true };
+    protected MpvContext Mpv { get; } = new() { LogEnabled = true };
 
-    public string SampleClip => Path.Combine(Environment.CurrentDirectory, "SampleClip.mp4");
+    protected string SampleClip => Path.Combine(Environment.CurrentDirectory, "SampleClip.mp4");
 
-    public void LoadVideo()
+    protected void LoadVideo()
     {
         Mpv.LoadFile(SampleClip).Invoke();
         Thread.Sleep(50);
     }
 
-    public void Log(object value) => Output.WriteLine(value.ToStringInvariant());
+    protected void Log(object value) => Output.WriteLine(value.ToStringInvariant());
 
     // public void LogAndQuit(ITestOutputHelper? output)
     // {

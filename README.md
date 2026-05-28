@@ -1,57 +1,135 @@
-# LibMpv for .NET (with OpenGL)
+# LibMpv for .NET
 
-Cross-platform MPV video player for .NET and Avalonia with OpenGL implementation.
+Cross-platform MPV video player library for .NET, with an Avalonia 12 implementation supporting Windows, macOS, and Linux.
 
-Supported renderers: Software, OpenGL, Native (Desktop & Android).
+## Overview
 
-## LibMpv
+LibMpv wraps the MPV media player API in a clean, idiomatic .NET interface. It is structured in three layers:
 
-MPV API implemented in 3 layers:
+- **MpvApi** — low-level static P/Invoke calls to the native libmpv library
+- **MpvContextBase** — .NET-friendly wrappers around the raw API
+- **MpvContext** — fully strongly-typed commands, properties, and options
 
-- MpvApi: static API invokes
-- MpvContextBase: .NET-friendly functions
-- MpvContext: all commands, properties and options exposed in a strongly-typed way
-
-LibMpv targets `netstandard2.0` and can be used with any UI.
+LibMpv targets `netstandard2.0` and can be used independently of any UI framework.
 
 ## LibMpv.Avalonia
 
-Avalonia implementation. Place `MpvVideoView` in your view.
+An Avalonia 12 implementation is provided via the `LibMpv.Avalonia` package. Drop `MpvVideoView` into your view and bind `MpvContext` from your ViewModel:
 
-You can access the MpvContext in your ViewModel by binding it like this.
+```xml
+<mpv:MpvVideoView MpvContext="{Binding Mpv}" />
+```
 
-    <mpv:MpvVideoView MpvContext="{Binding Mpv}" />
+### Renderers
 
-MpvContext provides access to all MPV features.
+| Platform | Default Renderer   | Zero-Copy GPU |
+|----------|--------------------|----------------|
+| Windows  | Native w/ AngleEGL | Yes            |
+| macOS    | OpenGL             | No             |
+| Linux    | OpenGL w/ EGL      | Yes            |
 
-Default renderer is OpenGL for Linux and MacOS, Native for Windows, and a different Native implementation for Android.
+Software rendering is also available as a fallback on all platforms.
 
-## Sample.LibMpv.Avalonia
+## Requirements
 
-Sample project tested on Windows, Linux and Android.
+- .NET 10 or later
+- Avalonia 12
+- libmpv 0.40.0 or greater
 
-Android MPV binaries are taken from the project https://github.com/mpv-android/mpv-android
+Native libmpv binaries for Windows, macOS, linux.
 
-## Contributions wanted!
+## Getting Started
 
-As I will not be using these features myself for a while, someone else will need to complete the work or it may sit in the current state for a long time.
+1. Install the NuGet packages:
 
-TODO:
+```
+dotnet add package LibMpv
+dotnet add package LibMpv.Avalonia
+```
 
-- [Improve Native implementation for Windows](https://github.com/mysteryx93/MediaPlayerUI.NET/issues/7#issuecomment-1602399799)
-- OpenGL and Software renderers, clear view after stop
-- Android version works in project "AndroidSample" but not in "Sample.LibMpv.Avalonia". Once the main sample works, "AndroidSample" can be removed.
-- Android version crashes when switching app.
-- MpvContext: async property get doesn't work on string but works for other data types
-- MpvContext: properties works on basic data types but more complex types need to be implemented and tested
-- MpvContext: all properties and commands need to be properly tested. See unit test project. 
-- Test on MacOS
-- Compile MPV for iOS
-- Implement for iOS
-- Add WPF and WinUI implementation? should be quite easy
+2. Add `MpvVideoView` to your Avalonia view and bind a `MpvContext` instance from your ViewModel.
+
+3. Configure per-OS rendering modes in your `AppBuilder`:
+
+```csharp
+using System.Runtime.InteropServices;
+using Avalonia.Win32;
+using Avalonia.X11;
+
+public static AppBuilder BuildAvaloniaApp()
+{
+    var builder = AppBuilder.Configure<App>().UsePlatformDetect();
+
+    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        builder.With(new Win32PlatformOptions
+        {
+            RenderingMode = [Win32RenderingMode.AngleEgl, Win32RenderingMode.Software]
+        });
+    else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        builder.With(new AvaloniaNativePlatformOptions
+        {
+            RenderingMode = [AvaloniaNativeRenderingMode.OpenGl, AvaloniaNativeRenderingMode.Software]
+        });
+    else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        builder.With(new X11PlatformOptions
+        {
+            RenderingMode = [X11RenderingMode.Egl, X11RenderingMode.Glx, X11RenderingMode.Software]
+        });
+
+    return builder.LogToTrace();
+}
+```
+
+Windows uses ANGLE (OpenGL ES over D3D11) which is required for the libmpv OpenGL render context to share the same GPU pipeline. macOS uses native OpenGL via Metal. Linux prefers EGL for Wayland compatibility, falling back to GLX for X11.
+
+4. Use `MpvContext` to control playback:
+
+```csharp
+Mpv.LoadFile("path/to/video.mp4");
+Mpv.Play();
+```
+
+## Getting the Native libmpv Libraries
+
+LibMpv requires native libmpv 0.40.0 binaries. Note that mpv does not publish official prebuilt packages — the options below are community-maintained builds.
+
+**Windows**
+
+Download a prebuilt `libmpv-2.dll` from one of these community build sources:
+
+- [shinchiro/mpv-winbuild-cmake](https://github.com/shinchiro/mpv-winbuild-cmake/releases) — download `mpv-dev-x86_64-<date>.7z`, extract and place `libmpv-2.dll` alongside your application.
+- [zhongfly/mpv-winbuild](https://github.com/zhongfly/mpv-winbuild/releases) — alternative CI builds; `mpv-dev-x86_64-<date>.7z` contains the same `libmpv-2.dll`.
+
+**macOS**
+
+Install via Homebrew (requires macOS 11 or later):
+
+```bash
+brew install mpv
+```
+
+The dylib will be available at `/opt/homebrew/lib/libmpv.dylib` (Apple Silicon) or `/usr/local/lib/libmpv.dylib` (Intel).
+
+**Linux (Ubuntu/Debian)**
+
+The version of `libmpv` in the standard Ubuntu repositories may be older than 0.40.0. To get 0.40.0, use the unofficial PPA:
+
+```bash
+sudo add-apt-repository ppa:ubuntuhandbook1/mpv
+sudo apt update
+sudo apt install libmpv-dev
+```
+
+For other distros, install via your package manager (e.g. `dnf install mpv-libs-devel` on Fedora) or build from source using [mpv-build](https://github.com/mpv-player/mpv-build).
+
+## Sample Project
+
+A sample application is included and has been tested on Windows, Linux, and macOS.
 
 ## License
 
-This project is under [MIT license](LICENSE).
+This project is licensed under the [MIT License](LICENSE).
 
-By Etienne Charland (mysteryx93) and Vadim Beloborodov (homov).
+Originally created by Etienne Charland (mysteryx93) and Vadim Beloborodov (homov).
+
+Maintained by Jeff Baxter (warden-vt).

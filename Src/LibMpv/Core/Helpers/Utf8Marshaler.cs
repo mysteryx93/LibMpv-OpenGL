@@ -4,7 +4,7 @@ public sealed class Utf8Marshaler : ICustomMarshaler
 {
     private static readonly Utf8Marshaler Instance = new();
 
-    public object? MarshalNativeToManaged(IntPtr pNativeData) => FromNative(pNativeData, Encoding.UTF8);
+    public object MarshalNativeToManaged(IntPtr pNativeData) => FromNative(pNativeData, Encoding.UTF8) ?? string.Empty;
 
     public IntPtr MarshalManagedToNative(object? managedObj)
     {

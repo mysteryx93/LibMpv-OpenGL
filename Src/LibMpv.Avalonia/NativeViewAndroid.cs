@@ -13,6 +13,19 @@ namespace HanumanInstitute.LibMpv.Avalonia;
 
 public class NativeView : NativeControlHost, IVideoView
 {
+    private sealed class AndroidMpvContext : MpvContext
+    {
+        protected override void OnPreInitialize()
+        {
+            SetOptionString("vo", "gpu");
+            SetOptionString("gpu-context", "android");
+            SetOptionString("opengl-es", "yes");
+#if DEBUG
+            SetOptionString("gpu-debug", "yes");
+#endif
+        }
+    }
+
     public class MpvSurfaceView : SurfaceView, ISurfaceHolderCallback
     {
         private MpvContext? _mpvContext;
@@ -68,15 +81,10 @@ public class NativeView : NativeControlHost, IVideoView
     // MpvContext property
     public static readonly DirectProperty<NativeView, MpvContext?> MpvContextProperty = AvaloniaProperty.RegisterDirect<NativeView, MpvContext?>(
             nameof(MpvContext), o => o.MpvContext, defaultBindingMode: BindingMode.OneWayToSource);
-    public MpvContext MpvContext { get; } = new();
+    public MpvContext MpvContext { get; } = new AndroidMpvContext();
 
     protected override IPlatformHandle CreateNativeControlCore(IPlatformHandle parent)
     {
-        MpvContext.SetOptionString("vo", "gpu");
-        MpvContext.SetOptionString("gpu-debug", "yes");
-        MpvContext.SetOptionString("gpu-context", "android");
-        MpvContext.SetOptionString("opengl-es", "yes");
-        
         var parentContext = (parent as AndroidViewControlHandle)?.View.Context ?? Android.App.Application.Context;
         _mpvSurfaceView = new MpvSurfaceView(parentContext);
         _mpvSurfaceView.Attach(MpvContext);
