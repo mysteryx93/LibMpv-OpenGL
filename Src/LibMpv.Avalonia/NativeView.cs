@@ -1,5 +1,6 @@
-﻿using System.Reactive.Disposables;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
@@ -25,6 +26,9 @@ public class NativeView : NativeControlHost, IVideoView
     private IDisposable? _disposables;
     private IDisposable? _isEffectivelyVisibleSub;
 
+    [DllImport("user32.dll", SetLastError = false)]
+    private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
     private sealed class NativeMpvContext : MpvContext
     {
         protected override void OnPreInitialize() => SetOptionString("hwdec", "auto");
@@ -34,7 +38,7 @@ public class NativeView : NativeControlHost, IVideoView
     public static readonly DirectProperty<NativeView, MpvContext> MpvContextProperty = AvaloniaProperty.RegisterDirect<NativeView, MpvContext>(
         nameof(MpvContext), o => o.MpvContext, defaultBindingMode: BindingMode.OneWayToSource);
     public MpvContext MpvContext { get; } = new NativeMpvContext();
-    
+
     static NativeView()
     {
         ContentProperty.Changed.AddClassHandler<NativeView>((s, e) => s.InitializeNativeOverlay());
@@ -61,6 +65,10 @@ public class NativeView : NativeControlHost, IVideoView
     {
         MpvContext.Tick -= OnMpvTick;
         MpvContext.StopRendering();
+        // Hide the HWND before Avalonia calls SetParent(NULL) inside base — prevents
+        // it from briefly appearing as a top-level floating window before DestroyWindow.
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            try { ShowWindow(control.Handle, 0 /* SW_HIDE */); } catch { }
         base.DestroyNativeControlCore(control);
         _platformHandle = null;
     }
@@ -72,6 +80,12 @@ public class NativeView : NativeControlHost, IVideoView
         base.OnAttachedToVisualTree(e);
 
         _attached = true;
+
+        // Fast re-attach: if the HWND is still alive (DestroyNativeControlCore hasn't run yet),
+        // StopRendering() may have zeroed `wid` during the detach. Restore it so MPV renders to
+        // this HWND instead of creating its own OS window.
+        if (_platformHandle != null)
+            MpvContext.StartNativeRendering(_platformHandle.Handle.ToInt64());
 
         InitializeNativeOverlay();
 
@@ -146,7 +160,7 @@ public class NativeView : NativeControlHost, IVideoView
         else
             _floatingContent.Hide();
     }
-    
+
     private void UpdateOverlayPosition()
     {
         if (_floatingContent == null) { return; }
@@ -212,7 +226,7 @@ public class NativeView : NativeControlHost, IVideoView
             _floatingContent.Position = newPosition;
         }
     }
-    
+
     protected virtual void Dispose(bool disposing)
     {
         if (disposing)
@@ -222,7 +236,7 @@ public class NativeView : NativeControlHost, IVideoView
             MpvContext.Dispose();
         }
     }
-    
+
     public void Dispose()
     {
         Dispose(true);
