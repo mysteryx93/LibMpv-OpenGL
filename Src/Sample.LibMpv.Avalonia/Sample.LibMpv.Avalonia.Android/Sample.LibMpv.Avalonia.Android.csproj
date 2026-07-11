@@ -1,15 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0-android</TargetFramework>
-    <SupportedOSPlatformVersion>21</SupportedOSPlatformVersion>
+    <TargetFramework>net10.0-android</TargetFramework>
+    <SupportedOSPlatformVersion>36.1</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion>23</SupportedOSPlatformVersion>
     <Nullable>enable</Nullable>
     <ApplicationId>com.CompanyName.Sample.LibMpv.Avalonia</ApplicationId>
     <ApplicationVersion>1</ApplicationVersion>
     <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
     <AndroidPackageFormat>apk</AndroidPackageFormat>
-    <AndroidEnableProfiledAot>False</AndroidEnableProfiledAot>
-    <LangVersion>default</LangVersion>
+    <AndroidCreatePackagePerAbi>false</AndroidCreatePackagePerAbi>
+    <AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,16 +19,22 @@
     </AndroidResource>
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Avalonia.Android" Version="11.0.0-rc1.1" />
-  </ItemGroup>
+  <PropertyGroup>
+    <NativePath>..\..\..\MpvDll\Android</NativePath>
+  </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Avalonia.Android" Version="12.0.4" />
+    <PackageReference Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.2.0.2" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <AndroidNativeLibrary Include="$(NativePath)\arm64-v8a\**\*"/>
+    <AndroidNativeLibrary Include="$(NativePath)\armeabi-v7a\**\*"/>
+    <AndroidNativeLibrary Include="$(NativePath)\x86_64\**\*"/>
+  </ItemGroup>
+  
   <ItemGroup>
     <ProjectReference Include="..\Sample.LibMpv.Avalonia\Sample.LibMpv.Avalonia.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <AndroidNativeLibrary Include="..\..\..\MpvDll\android-x64\*" />
-  </ItemGroup>
-
 </Project>

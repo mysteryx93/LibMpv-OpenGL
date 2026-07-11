@@ -1,5 +1,7 @@
+#if !ANDROID
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+#endif
 using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Controls;

@@ -1,3 +1,5 @@
+
+using Avalonia;
 using Avalonia.Controls;
 
 namespace Sample.LibMpv.Avalonia.Views;

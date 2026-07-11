@@ -14,7 +14,7 @@
 
     <Grid ColumnDefinitions="*" RowDefinitions="*,Auto">
         <mpv:MpvView MpvContext="{Binding Mpv}" Renderer="{Binding Renderer}" />
-
+        
         <Grid Grid.Row="1" HorizontalAlignment="Stretch" ColumnDefinitions="Auto,*,Auto">
             <ComboBox Grid.Column="0" Margin="5"
                       ItemsSource="{Binding RendererOptions}"

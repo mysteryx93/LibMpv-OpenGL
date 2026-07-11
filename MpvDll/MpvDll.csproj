@@ -30,19 +30,19 @@
 		</Content>
 	</ItemGroup>
   <ItemGroup Condition="'$(RuntimeIdentifier)'=='android-arm64'">
-    <Content Include="android-arm64\**">
+    <Content Include="Android\arm64-v8a\**">
       <Link>%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup Condition="'$(RuntimeIdentifier)'=='android-arm'">
-    <Content Include="android-arm\**">
+    <Content Include="Android\armeabi-v7a\**">
       <Link>%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup Condition="'$(RuntimeIdentifier)'=='android-x64'">
-    <AndroidNativeLibrary Include="android-x64\**">
+    <AndroidNativeLibrary Include="Android\x86_64\**">
       <Link>%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </AndroidNativeLibrary>      

@@ -16,7 +16,16 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>0.10.1</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <TargetFrameworks>net10.0;netstandard2.0</TargetFrameworks>
+    <!-- <TargetFrameworks>net10.0;netstandard2.0;net10.0-android</TargetFrameworks> -->
+    <TargetFrameworks>net10.0;netstandard2.0;net10.0-android</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <AndroidSupportedAbis>armeabi-v7a;arm64-v8a;x86_64</AndroidSupportedAbis>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <AndroidSupportedAbis>armeabi-v7a;arm64-v8a;x86_64</AndroidSupportedAbis>
   </PropertyGroup>
 
   <ItemGroup>

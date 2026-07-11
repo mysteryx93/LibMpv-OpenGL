@@ -17,8 +17,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.LibMpv.Avalonia.iOS"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MpvDll", "..\MpvDll\MpvDll.csproj", "{056DCE47-677C-45CF-91A6-9C9D835C43E6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AndroidSample", "AndroidSample\AndroidSample.csproj", "{79A900A7-2269-461D-878A-25CE5B9F4014}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibMpv.Avalonia", "LibMpv.Avalonia\LibMpv.Avalonia.csproj", "{C71EDF20-1C05-48E0-A868-2EBEECE5B438}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibMpv.Tests", "LibMpv.Tests\LibMpv.Tests.csproj", "{ABD9B680-FD90-453E-8115-E965CC686065}"
@@ -53,10 +51,6 @@ Global
 		{056DCE47-677C-45CF-91A6-9C9D835C43E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{056DCE47-677C-45CF-91A6-9C9D835C43E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{056DCE47-677C-45CF-91A6-9C9D835C43E6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{79A900A7-2269-461D-878A-25CE5B9F4014}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{79A900A7-2269-461D-878A-25CE5B9F4014}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{79A900A7-2269-461D-878A-25CE5B9F4014}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{79A900A7-2269-461D-878A-25CE5B9F4014}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C71EDF20-1C05-48E0-A868-2EBEECE5B438}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C71EDF20-1C05-48E0-A868-2EBEECE5B438}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C71EDF20-1C05-48E0-A868-2EBEECE5B438}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -65,7 +59,7 @@ Global
 		{ABD9B680-FD90-453E-8115-E965CC686065}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ABD9B680-FD90-453E-8115-E965CC686065}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ABD9B680-FD90-453E-8115-E965CC686065}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
+EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection

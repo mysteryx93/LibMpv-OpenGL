@@ -12,11 +12,29 @@ public class SoftwareView : Control, IVideoView
 {
     private sealed class SoftwareMpvContext : MpvContext
     {
-        protected override void OnPreInitialize() => SetOptionString("vo", "libmpv");
+        protected override void OnPreInitialize()
+        {
+            this.SetOptionString("vo", "libmpv");
+            
+#if ANDROID
+            this.SetOptionString("gpu-debug", "yes");
+            this.SetOptionString("gpu-context", "android");
+#endif
+        } 
     }
 
     private WriteableBitmap? _renderTarget;
     private volatile bool _isIdle;
+    
+    private double _renderScaling = 1.0;
+    private int _renderQueued;
+    
+#if ANDROID
+    private const string PixelFormatName = "rgba";
+#else
+    private const string PixelFormatName = "bgra";
+#endif
+
 
     // MpvContext property
     public static readonly DirectProperty<SoftwareView, MpvContext> MpvContextProperty = AvaloniaProperty.RegisterDirect<SoftwareView, MpvContext>(
@@ -51,29 +69,32 @@ public class SoftwareView : Control, IVideoView
             context.FillRectangle(Brushes.Black, new Rect(Bounds.Size));
             return;
         }
-
+        
         if (TopLevel.GetTopLevel(this) == null) { return; }
+        
         if (Bounds.Width < 1 || Bounds.Height < 1) { return; }
 
         var bitmapSize = GetPixelSize();
-            
+
         if (_renderTarget == null || _renderTarget.PixelSize.Width != bitmapSize.Width || _renderTarget.PixelSize.Height != bitmapSize.Height)
         {
             _renderTarget?.Dispose();
-            _renderTarget = new WriteableBitmap(bitmapSize, new Vector(96.0, 96.0), PixelFormat.Bgra8888, AlphaFormat.Premul);
+            _renderTarget = new WriteableBitmap(bitmapSize, new Vector(96, 96), PixelFormat.Bgra8888, AlphaFormat.Premul);
         }
-
+        
         using (var lockedBitmap = this._renderTarget.Lock())
         {
-#if ANDROID
-            var pix = "rgba";
-#else
-            var pix = "bgra";
-#endif
             MpvContext.InvokePreRender();
-            MpvContext.SoftwareRender(lockedBitmap.Size.Width, lockedBitmap.Size.Height, lockedBitmap.Address, pix);
+            MpvContext.SoftwareRender(
+                lockedBitmap.Size.Width, 
+                lockedBitmap.Size.Height, 
+                lockedBitmap.Address, 
+                PixelFormatName);
         }
-        context.DrawImage(this._renderTarget, new Rect(0, 0, _renderTarget.PixelSize.Width, _renderTarget.PixelSize.Height));
+
+        context.DrawImage(
+            _renderTarget,
+            new Rect(Bounds.Size));
     }
 
     private PixelSize GetPixelSize()
@@ -84,19 +105,29 @@ public class SoftwareView : Control, IVideoView
 
     private void UpdateVideoView()
     {
-        this.Dispatcher.Post(this.InvalidateVisual, DispatcherPriority.Background);
+        if(Interlocked.Exchange(ref _renderQueued, 1) == 1)
+            return;
+        
+        
+        this.Dispatcher.Post(() =>
+        {
+            _renderQueued = 0;
+
+            InvalidateVisual();
+        }, DispatcherPriority.Render);
     }
 
     protected virtual void Dispose(bool disposing)
     {
         // ReleaseUnmanagedResources();
-        if (disposing)
-        {
-            MpvContext.Idle -= OnMpvIdle;
-            MpvContext.StartFile -= OnMpvStartFile;
-            MpvContext.Dispose();
-            _renderTarget?.Dispose();
-        }
+        
+        if(!disposing)
+            return;
+        
+        MpvContext.Idle -= OnMpvIdle;
+        MpvContext.StartFile -= OnMpvStartFile;
+        MpvContext.Dispose();
+        _renderTarget?.Dispose();
     }
     public void Dispose()
     {
@@ -108,4 +139,5 @@ public class SoftwareView : Control, IVideoView
     {
         Dispose(false);
     }
+
 }

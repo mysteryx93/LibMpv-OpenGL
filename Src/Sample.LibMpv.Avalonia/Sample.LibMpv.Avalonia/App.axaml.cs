@@ -1,5 +1,8 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Data.Core;
+using Avalonia.Data.Core.Plugins;
+using System.Linq;
 using Avalonia.Markup.Xaml;
 using Sample.LibMpv.Avalonia.ViewModels;
 using Sample.LibMpv.Avalonia.Views;
@@ -21,6 +24,10 @@ public partial class App : Application
             {
                 DataContext = new MainViewModel()
             };
+        }
+        else if (ApplicationLifetime is IActivityApplicationLifetime singleViewFactoryApplicationLifetime)
+        {
+            singleViewFactoryApplicationLifetime.MainViewFactory = () => new MainView { DataContext = new MainViewModel() };
         }
         else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
         {

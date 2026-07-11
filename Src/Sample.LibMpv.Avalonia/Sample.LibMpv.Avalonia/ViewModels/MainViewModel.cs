@@ -1,4 +1,6 @@
-﻿using Avalonia.Media;
+﻿using System;
+using Avalonia;
+using Avalonia.Media;
 using HanumanInstitute.LibMpv;
 using HanumanInstitute.LibMpv.Avalonia;
 using ReactiveUI;

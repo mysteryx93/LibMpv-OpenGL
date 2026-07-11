@@ -1,5 +1,0 @@
-﻿<linker>
-  <!-- Can be removed if CompiledBinding and no reflection are used -->
-  <assembly fullname="Sample.LibMpv.Avalonia" preserve="All" />
-  <assembly fullname="Avalonia.Themes.Fluent" preserve="All" />
-</linker>
